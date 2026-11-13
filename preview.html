@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es" class="dark h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TraxDocs — Generador de Documentos Legales y Cotizaciones</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slate: {
+              950: '#020617'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @media print {
+      @page { margin: 12mm 15mm; size: auto; }
+      body { background: #fff !important; color: #000 !important; }
+      header, aside, .no-print, .fixed, button, input, select, textarea, #editor-panel { display: none !important; }
+      #preview-panel { width: 100% !important; max-width: 100% !important; padding: 0 !important; }
+      #printable-sheet { box-shadow: none !important; border: none !important; padding: 0 !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-full flex flex-col font-sans">
+
+  <!-- Promo Banner TraxPDF (Descartable) -->
+  <aside id="traxpdf-banner" class="no-print relative z-30 bg-gradient-to-r from-emerald-950/80 via-slate-900 to-slate-950 border-b border-emerald-500/20 px-4 py-2.5 text-xs text-slate-300">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <span class="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[10px]">★</span>
+        <p>
+          <span class="font-semibold text-emerald-400">¿Necesitas modificar o firmar un PDF ya existente?</span>
+          Usa <strong class="text-white">TraxPDF Studio</strong>: edita texto y firma documentos 100% privado en tu navegador.
+        </p>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="https://traxpdf.tracciondigital.com.mx" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 rounded bg-emerald-500 px-3 py-1 text-xs font-semibold text-slate-950 hover:bg-emerald-400 transition-colors">
+          Abrir TraxPDF Gratis →
+        </a>
+        <button onclick="document.getElementById('traxpdf-banner').style.display='none'" class="text-slate-400 hover:text-white text-base leading-none">✕</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-20 no-print">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-lg">TD</span>
+        <div>
+          <div class="flex items-center gap-1 leading-none">
+            <span class="text-lg font-black text-white">Trax</span>
+            <span class="text-lg font-black text-emerald-400">Docs</span>
+            <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded ml-1 font-semibold">Gratis</span>
+          </div>
+          <p class="text-[10px] text-slate-400">Documentos legales y comerciales</p>
+        </div>
+      </div>
+
+      <!-- Tabs Navigation -->
+      <nav class="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-semibold">
+        <button onclick="switchTab('cotizacion')" id="tab-btn-cotizacion" class="px-3.5 py-1.5 rounded-lg bg-emerald-500 text-slate-950 transition-all">📑 Cotizaciones</button>
+        <button onclick="switchTab('remision')" id="tab-btn-remision" class="px-3.5 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 transition-all">📦 Remisiones</button>
+        <button onclick="switchTab('contrato')" id="tab-btn-contrato" class="px-3.5 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 transition-all">⚖️ Contratos</button>
+        <button onclick="switchTab('cartapoder')" id="tab-btn-cartapoder" class="px-3.5 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 transition-all">📜 Cartas Poder</button>
+      </nav>
+
+      <a href="https://traxpdf.tracciondigital.com.mx" target="_blank" class="text-xs text-emerald-400 hover:underline">Visitar TraxPDF ↗</a>
+    </div>
+  </header>
+
+  <!-- Split Screen Editor + Preview -->
+  <div class="flex-1 max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 min-h-[calc(100vh-4rem)]">
+    <!-- Left Editor -->
+    <div id="editor-panel" class="lg:col-span-5 p-6 border-r border-slate-800 overflow-y-auto space-y-6">
+      <div id="tab-content-cotizacion" class="space-y-4">
+        <h2 class="text-base font-bold text-white">Datos de la Cotización</h2>
+        <div class="space-y-2">
+          <label class="text-xs text-slate-400">Empresa / Emisor</label>
+          <input id="q-issuer" type="text" value="Tracción Digital S.A.S. de C.V." oninput="updateQuotation()" class="w-full rounded border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white">
+        </div>
+        <div class="space-y-2">
+          <label class="text-xs text-slate-400">Cliente</label>
+          <input id="q-client" type="text" value="Corporativo InnovaTech México" oninput="updateQuotation()" class="w-full rounded border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-xs text-slate-400">Folio</label>
+            <input id="q-folio" type="text" value="COT-2026-0042" oninput="updateQuotation()" class="w-full rounded border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">IVA (%)</label>
+            <input id="q-iva" type="number" value="16" oninput="updateQuotation()" class="w-full rounded border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white">
+          </div>
+        </div>
+        <div class="space-y-2">
+          <label class="text-xs text-slate-400">Partida / Concepto Principal</label>
+          <textarea id="q-concept" rows="2" oninput="updateQuotation()" class="w-full rounded border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white">Desarrollo de Plataforma Web a la Medida, diseño UI responsive y optimización técnica SEO</textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-xs text-slate-400">Importe ($ MXN)</label>
+            <input id="q-amount" type="number" value="28500" oninput="updateQuotation()" class="w-full rounded border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Vigencia (Días)</label>
+            <input id="q-days" type="text" value="15 días naturales" oninput="updateQuotation()" class="w-full rounded border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white">
+          </div>
+        </div>
+
+        <!-- Cláusulas Dinámicas Cotización -->
+        <div class="pt-4 border-t border-slate-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wide">Cláusulas Comerciales</h3>
+            <button onclick="addCustomClause('q')" class="text-xs text-emerald-400 hover:underline">+ Agregar</button>
+          </div>
+          <div id="q-clauses-container" class="space-y-2">
+            <!-- clauses injected by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Otros tabs placeholders for preview -->
+      <div id="tab-content-other" class="hidden space-y-4">
+        <h2 id="other-title" class="text-base font-bold text-white"></h2>
+        <p class="text-xs text-slate-400">Edita los parámetros directamente o visualiza el documento maquetado en el panel derecho.</p>
+        <div id="other-inputs" class="space-y-3"></div>
+      </div>
+    </div>
+
+    <!-- Right Live Sheet Preview -->
+    <div id="preview-panel" class="lg:col-span-7 bg-slate-950 flex flex-col p-4 sm:p-6">
+      <div class="flex items-center justify-between bg-slate-900 border border-slate-800 px-4 py-2.5 rounded-t-xl no-print">
+        <span class="text-xs font-semibold text-slate-300">Hoja Imprimible / Exportable en PDF</span>
+        <button onclick="window.print()" class="inline-flex items-center gap-1.5 rounded-md bg-emerald-500 px-3 py-1 text-xs font-semibold text-slate-950 hover:bg-emerald-400 transition-colors">
+          🖨️ Imprimir / Guardar en PDF
+        </button>
+      </div>
+
+      <div class="bg-slate-950/60 p-4 flex justify-center flex-1 overflow-y-auto">
+        <div id="printable-sheet" class="w-full max-w-[800px] bg-white text-slate-900 shadow-2xl rounded p-10 text-[13px] leading-relaxed border border-slate-200">
+          <!-- Dynamic Content -->
+          <div id="sheet-body"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón Flotante Powered by Tracción Digital (fondo a la izquierda) -->
+  <a
+    href="https://tracciondigital.com.mx"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="fixed bottom-4 left-4 z-40 group inline-flex items-center gap-2 rounded-full border border-slate-700/80 bg-slate-900/90 px-3.5 py-1.5 text-xs font-medium text-slate-300 shadow-lg shadow-black/50 backdrop-blur-md transition-all duration-200 hover:border-emerald-500/60 hover:bg-slate-800 hover:text-white hover:shadow-emerald-500/10 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 no-print"
+    title="Visitar Tracción Digital"
+  >
+    <span class="relative flex h-2 w-2">
+      <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+      <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+    </span>
+    <span class="text-slate-400">Powered by</span>
+    <span class="font-semibold text-slate-100 group-hover:text-emerald-400 transition-colors">Tracción Digital</span>
+    <svg class="h-3 w-3 text-slate-400 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+    </svg>
+  </a>
+
+  <script>
+    let currentTab = 'cotizacion';
+    const qClauses = [
+      { id: 1, title: '1. Vigencia', text: 'Los costos presentados son válidos durante 15 días naturales a partir de la emisión.', enabled: true },
+      { id: 2, title: '2. Forma de Pago', text: '50% anticipo al ordenar y 50% restante contra entrega final a entera satisfacción.', enabled: true },
+      { id: 3, title: '3. Garantía', text: 'Se incluye garantía de 30 días naturales por defectos técnicos o correcciones atribuibles al alcance.', enabled: true }
+    ];
+
+    function renderQuotationClauses() {
+      const container = document.getElementById('q-clauses-container');
+      container.innerHTML = qClauses.map((c, i) => `
+        <div class="p-2.5 rounded bg-slate-900 border border-slate-800 flex items-start gap-2 text-xs">
+          <input type="checkbox" ${c.enabled ? 'checked' : ''} onchange="toggleClause(${c.id})" class="mt-1">
+          <div class="flex-1">
+            <input type="text" value="${c.title}" oninput="editClauseTitle(${c.id}, this.value)" class="w-full bg-transparent font-semibold text-slate-200 border-b border-transparent focus:border-emerald-500 mb-1">
+            <textarea rows="2" oninput="editClauseText(${c.id}, this.value)" class="w-full bg-slate-950 p-1.5 rounded border border-slate-800 text-slate-300">${c.text}</textarea>
+          </div>
+          <button onclick="deleteClause(${c.id})" class="text-slate-500 hover:text-rose-400">✕</button>
+        </div>
+      `).join('');
+    }
+
+    function toggleClause(id) {
+      const c = qClauses.find(x => x.id === id);
+      if (c) c.enabled = !c.enabled;
+      updateQuotation();
+    }
+    function editClauseTitle(id, val) {
+      const c = qClauses.find(x => x.id === id);
+      if (c) c.title = val;
+      updateQuotation();
+    }
+    function editClauseText(id, val) {
+      const c = qClauses.find(x => x.id === id);
+      if (c) c.text = val;
+      updateQuotation();
+    }
+    function deleteClause(id) {
+      const idx = qClauses.findIndex(x => x.id === id);
+      if (idx !== -1) qClauses.splice(idx, 1);
+      renderQuotationClauses();
+      updateQuotation();
+    }
+    function addCustomClause() {
+      const title = prompt('Título de la nueva cláusula:', '4. Nueva Cláusula');
+      if (!title) return;
+      const text = prompt('Texto o estipulación:', 'Descripción de la condición convenida.');
+      qClauses.push({ id: Date.now(), title, text: text || '', enabled: true });
+      renderQuotationClauses();
+      updateQuotation();
+    }
+
+    function updateQuotation() {
+      if (currentTab !== 'cotizacion') return;
+      const issuer = document.getElementById('q-issuer').value;
+      const client = document.getElementById('q-client').value;
+      const folio = document.getElementById('q-folio').value;
+      const ivaRate = parseFloat(document.getElementById('q-iva').value) || 0;
+      const concept = document.getElementById('q-concept').value;
+      const amount = parseFloat(document.getElementById('q-amount').value) || 0;
+      const iva = (amount * ivaRate) / 100;
+      const total = amount + iva;
+
+      const activeClausesHtml = qClauses.filter(c => c.enabled).map(c => `
+        <p class="mb-1"><strong>${c.title}:</strong> ${c.text}</p>
+      `).join('');
+
+      document.getElementById('sheet-body').innerHTML = `
+        <div class="space-y-6">
+          <div class="flex justify-between items-start border-b-2 border-slate-900 pb-4">
+            <div>
+              <h1 class="text-2xl font-bold uppercase tracking-tight text-slate-950">${issuer}</h1>
+              <p class="text-xs text-slate-600">Presupuesto y Propuesta Técnica</p>
+            </div>
+            <div class="text-right">
+              <span class="bg-slate-950 text-white font-bold px-3 py-1 text-xs uppercase">COTIZACIÓN</span>
+              <p class="text-sm font-bold text-slate-900 mt-2">Folio: ${folio}</p>
+            </div>
+          </div>
+          <div class="bg-slate-50 border border-slate-200 rounded p-4 text-xs">
+            <p><strong>Cliente:</strong> ${client}</p>
+          </div>
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b-2 border-slate-900 font-bold uppercase">
+                <th class="py-2">Descripción</th>
+                <th class="py-2 text-right">Importe</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-slate-200">
+                <td class="py-3">${concept}</td>
+                <td class="py-3 text-right font-medium">$${amount.toLocaleString('es-MX')} MXN</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="flex justify-end text-xs">
+            <div class="w-64 space-y-1">
+              <div class="flex justify-between border-b pb-1"><span>Subtotal:</span><strong>$${amount.toLocaleString('es-MX')}</strong></div>
+              <div class="flex justify-between border-b pb-1"><span>IVA (${ivaRate}%):</span><strong>$${iva.toLocaleString('es-MX')}</strong></div>
+              <div class="flex justify-between text-sm font-bold pt-1"><span>Total:</span><strong>$${total.toLocaleString('es-MX')} MXN</strong></div>
+            </div>
+          </div>
+          <div class="pt-4 border-t border-slate-200 text-[11px] text-slate-700">
+            <h4 class="font-bold text-slate-900 uppercase mb-2">Términos Comerciales:</h4>
+            ${activeClausesHtml}
+          </div>
+          <div class="pt-10 grid grid-cols-2 gap-8 text-center text-xs">
+            <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold mt-1">${issuer}</p><p class="text-slate-500">Emisor Autorizado</p></div>
+            <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold mt-1">${client}</p><p class="text-slate-500">Aceptación (Firma y Sello)</p></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      ['cotizacion', 'remision', 'contrato', 'cartapoder'].forEach(t => {
+        const btn = document.getElementById('tab-btn-' + t);
+        if (t === tab) {
+          btn.className = 'px-3.5 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-bold transition-all';
+        } else {
+          btn.className = 'px-3.5 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 transition-all';
+        }
+      });
+
+      if (tab === 'cotizacion') {
+        document.getElementById('tab-content-cotizacion').classList.remove('hidden');
+        document.getElementById('tab-content-other').classList.add('hidden');
+        updateQuotation();
+      } else {
+        document.getElementById('tab-content-cotizacion').classList.add('hidden');
+        document.getElementById('tab-content-other').classList.remove('hidden');
+
+        if (tab === 'remision') {
+          document.getElementById('other-title').innerText = 'Nota de Remisión y Entrega';
+          document.getElementById('sheet-body').innerHTML = `
+            <div class="space-y-6">
+              <div class="flex justify-between items-start border-b-2 border-slate-900 pb-4">
+                <div><h1 class="text-2xl font-bold uppercase text-slate-950">Tracción Digital / Logística</h1><p class="text-xs text-slate-600">Amparo de Entrega de Bienes</p></div>
+                <div class="text-right"><span class="bg-slate-950 text-white font-bold px-3 py-1 text-xs uppercase">REMISIÓN</span><p class="text-sm font-bold text-slate-900 mt-2">Folio: REM-2026-018</p></div>
+              </div>
+              <div class="bg-slate-50 border p-3 rounded text-xs"><p><strong>Receptor:</strong> Grupo Comercial del Centro S.A. de C.V.</p><p><strong>Destino:</strong> Parque Industrial Vallejo, Bodega 4-B</p></div>
+              <table class="w-full text-left text-xs">
+                <tr class="border-b font-bold"><th class="py-2">Cant</th><th>Descripción</th><th>Estado</th></tr>
+                <tr class="border-b"><td class="py-2">5 Pzas</td><td>Servidores Rack 1U Intel Xeon</td><td>Nuevo / Sellado</td></tr>
+                <tr class="border-b"><td class="py-2">10 Pzas</td><td>Routers de Comunicación Gigabit</td><td>Verificado</td></tr>
+              </table>
+              <div class="text-xs pt-4"><p><strong>Condición:</strong> El receptor declara haber recibido las mercancías en perfecto estado de conservación y empaque original.</p></div>
+              <div class="pt-10 grid grid-cols-2 gap-8 text-center text-xs">
+                <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold mt-1">Entregado por (Transportista)</p></div>
+                <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold mt-1">Recibido de Conformidad</p></div>
+              </div>
+            </div>
+          `;
+        } else if (tab === 'contrato') {
+          document.getElementById('other-title').innerText = 'Contrato de Prestación de Servicios';
+          document.getElementById('sheet-body').innerHTML = `
+            <div class="space-y-6 text-justify">
+              <div class="text-center border-b-2 border-slate-900 pb-3">
+                <h1 class="text-lg font-bold uppercase text-slate-950">CONTRATO DE PRESTACIÓN DE SERVICIOS PROFESIONALES</h1>
+                <p class="text-xs text-slate-600">CELEBRADO ENTRE TRACCIÓN DIGITAL Y EL CLIENTE</p>
+              </div>
+              <p class="text-xs">En la Ciudad de México, celebran el presente instrumento legal, por una parte <strong>Tracción Digital S.A.S. de C.V.</strong> ("EL PRESTADOR"), y por la otra <strong>Comercializadora Vanguardia Digital</strong> ("EL CLIENTE").</p>
+              <div class="space-y-2 text-xs">
+                <p><strong>PRIMERA. OBJETO:</strong> EL PRESTADOR se obliga a diseñar y desplegar soluciones de software a favor de EL CLIENTE.</p>
+                <p><strong>SEGUNDA. HONORARIOS:</strong> La contraprestación asciende a la cantidad acordada más IVA liquidable en dos exhibiciones.</p>
+                <p><strong>TERCERA. PROPIEDAD INTELECTUAL:</strong> Los derechos patrimoniales se transmitirán a EL CLIENTE una vez liquidado el pago total.</p>
+                <p><strong>CUARTA. CONFIDENCIALIDAD:</strong> Ambas partes convienen en no divulgar información técnica o comercial a terceros.</p>
+              </div>
+              <div class="pt-8 grid grid-cols-2 gap-8 text-center text-xs">
+                <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold mt-1">EL PRESTADOR</p></div>
+                <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold mt-1">EL CLIENTE</p></div>
+              </div>
+            </div>
+          `;
+        } else if (tab === 'cartapoder') {
+          document.getElementById('other-title').innerText = 'Carta Poder Privada con 4 Firmas';
+          document.getElementById('sheet-body').innerHTML = `
+            <div class="space-y-6 text-justify">
+              <div class="flex justify-between items-start border-b-2 border-slate-900 pb-3">
+                <div><h1 class="text-2xl font-bold uppercase text-slate-950">CARTA PODER</h1><p class="text-xs text-slate-600">Documento Privado de Mandato</p></div>
+                <div class="text-right text-xs"><p><strong>Lugar y Fecha:</strong> CDMX, a 13 de Noviembre de 2026</p></div>
+              </div>
+              <p class="text-xs font-bold uppercase">A QUIEN CORRESPONDA / AUTORIDADES COMPETENTES:</p>
+              <p class="text-xs">Por la presente otorgo a <strong>Lic. Patricia Zambrano Fuentes</strong> poder bastante y suficiente para que en mi nombre y representación realice todos los trámites, promociones y firmas pertinentes ante las dependencias correspondientes.</p>
+              <div class="bg-slate-50 border-l-4 border-slate-900 p-3 text-xs italic">
+                Facultades: Comparecer, presentar solicitudes, exhibir documentación oficial y oír y recibir notificaciones.
+              </div>
+              <div class="pt-8 space-y-6">
+                <div class="grid grid-cols-2 gap-8 text-center text-xs">
+                  <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold mt-1">OTORGANTE (PODERDANTE)</p></div>
+                  <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold mt-1">ACEPTANTE (APODERADO)</p></div>
+                </div>
+                <div class="grid grid-cols-2 gap-8 text-center text-xs pt-4">
+                  <div><div class="border-b border-slate-900 mx-8 pb-1"></div><p class="font-bold mt-1">TESTIGO 1</p></div>
+                  <div><div class="border-b border-slate-900 mx-8 pb-1"></div><p class="font-bold mt-1">TESTIGO 2</p></div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      }
+    }
+
+    renderQuotationClauses();
+    updateQuotation();
+  </script>
+</body>
+</html>
