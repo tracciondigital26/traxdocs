@@ -22,10 +22,11 @@
   <style>
     @media print {
       @page { margin: 12mm 15mm; size: auto; }
-      body { background: #fff !important; color: #000 !important; }
+      body { background: #fff !important; color: #000 !important; font-size: 11pt !important; }
       header, aside, .no-print, .fixed, button, input, select, textarea, #editor-panel { display: none !important; }
       #preview-panel { width: 100% !important; max-width: 100% !important; padding: 0 !important; }
       #printable-sheet { box-shadow: none !important; border: none !important; padding: 0 !important; }
+      table, tr, td, th { page-break-inside: avoid; }
     }
   </style>
 </head>
@@ -52,7 +53,7 @@
 
   <!-- Header -->
   <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-20 no-print">
-    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
       <div class="flex items-center gap-2.5">
         <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-lg">TD</span>
         <div>
@@ -61,7 +62,7 @@
             <span class="text-lg font-black text-emerald-400">Docs</span>
             <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded ml-1 font-semibold">Gratis</span>
           </div>
-          <p class="text-[10px] text-slate-400">Documentos legales y comerciales</p>
+          <p class="text-[10px] text-slate-400">Documentos legales y comerciales 100% editables</p>
         </div>
       </div>
 
@@ -73,81 +74,378 @@
         <button onclick="switchTab('cartapoder')" id="tab-btn-cartapoder" class="px-3.5 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 transition-all">📜 Cartas Poder</button>
       </nav>
 
-      <a href="https://traxpdf.tracciondigital.com.mx" target="_blank" class="text-xs text-emerald-400 hover:underline">Visitar TraxPDF ↗</a>
+      <div class="flex items-center gap-2">
+        <button onclick="resetCurrentTab()" class="text-xs text-slate-400 hover:text-rose-400 px-2 py-1 rounded hover:bg-slate-900">Restablecer</button>
+        <a href="https://traxpdf.tracciondigital.com.mx" target="_blank" class="text-xs text-emerald-400 hover:underline">Visitar TraxPDF ↗</a>
+      </div>
     </div>
   </header>
 
   <!-- Split Screen Editor + Preview -->
   <div class="flex-1 max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 min-h-[calc(100vh-4rem)]">
     <!-- Left Editor -->
-    <div id="editor-panel" class="lg:col-span-5 p-6 border-r border-slate-800 overflow-y-auto space-y-6">
-      <div id="tab-content-cotizacion" class="space-y-4">
-        <h2 class="text-base font-bold text-white">Datos de la Cotización</h2>
-        <div class="space-y-2">
-          <label class="text-xs text-slate-400">Empresa / Emisor</label>
-          <input id="q-issuer" type="text" value="Tracción Digital S.A.S. de C.V." oninput="updateQuotation()" class="w-full rounded border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white">
+    <div id="editor-panel" class="lg:col-span-5 p-5 border-r border-slate-800 overflow-y-auto space-y-6 max-h-[calc(100vh-4rem)]">
+      
+      <!-- ==================== TAB 1: COTIZACIÓN ==================== -->
+      <div id="tab-content-cotizacion" class="space-y-5">
+        <div class="border-b border-slate-800 pb-2">
+          <h2 class="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">1. Editor de Cotizaciones</h2>
+          <p class="text-xs text-slate-400">Modifica cada dato del emisor, cliente, partidas, impuestos y condiciones comerciales.</p>
         </div>
-        <div class="space-y-2">
-          <label class="text-xs text-slate-400">Cliente</label>
-          <input id="q-client" type="text" value="Corporativo InnovaTech México" oninput="updateQuotation()" class="w-full rounded border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white">
-        </div>
-        <div class="grid grid-cols-2 gap-2">
+
+        <!-- Encabezado y Folios -->
+        <div class="grid grid-cols-3 gap-2 bg-slate-900/70 p-3 rounded-lg border border-slate-800">
           <div>
-            <label class="text-xs text-slate-400">Folio</label>
-            <input id="q-folio" type="text" value="COT-2026-0042" oninput="updateQuotation()" class="w-full rounded border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white">
+            <label class="text-[11px] text-slate-400 block mb-1">Folio</label>
+            <input id="q-folio" type="text" value="COT-2026-0042" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-white">
           </div>
           <div>
-            <label class="text-xs text-slate-400">IVA (%)</label>
-            <input id="q-iva" type="number" value="16" oninput="updateQuotation()" class="w-full rounded border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white">
-          </div>
-        </div>
-        <div class="space-y-2">
-          <label class="text-xs text-slate-400">Partida / Concepto Principal</label>
-          <textarea id="q-concept" rows="2" oninput="updateQuotation()" class="w-full rounded border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white">Desarrollo de Plataforma Web a la Medida, diseño UI responsive y optimización técnica SEO</textarea>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="text-xs text-slate-400">Importe ($ MXN)</label>
-            <input id="q-amount" type="number" value="28500" oninput="updateQuotation()" class="w-full rounded border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white">
+            <label class="text-[11px] text-slate-400 block mb-1">Fecha Emisión</label>
+            <input id="q-date" type="date" value="2026-11-13" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-white">
           </div>
           <div>
-            <label class="text-xs text-slate-400">Vigencia (Días)</label>
-            <input id="q-days" type="text" value="15 días naturales" oninput="updateQuotation()" class="w-full rounded border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white">
+            <label class="text-[11px] text-slate-400 block mb-1">Válida Hasta</label>
+            <input id="q-valid" type="date" value="2026-11-28" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-white">
           </div>
         </div>
 
-        <!-- Cláusulas Dinámicas Cotización -->
-        <div class="pt-4 border-t border-slate-800 space-y-3">
+        <!-- Emisor -->
+        <div class="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <h3 class="text-xs font-semibold text-emerald-400">Datos del Emisor (Tu Empresa / Negocio)</h3>
+          <input id="q-issuer" type="text" placeholder="Razón Social o Nombre Comercial" value="Tracción Digital S.A.S. de C.V." oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          <div class="grid grid-cols-2 gap-2">
+            <input id="q-issuer-rfc" type="text" placeholder="RFC" value="TDI240101XYZ" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+            <input id="q-issuer-phone" type="text" placeholder="Teléfono" value="+52 55 1234 5678" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          </div>
+          <input id="q-issuer-email" type="text" placeholder="Correo electrónico" value="contacto@tracciondigital.com.mx" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          <input id="q-issuer-address" type="text" placeholder="Dirección física" value="Av. Insurgentes Sur 1602, Benito Juárez, CDMX" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+        </div>
+
+        <!-- Cliente -->
+        <div class="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <h3 class="text-xs font-semibold text-emerald-400">Datos del Cliente</h3>
+          <input id="q-client" type="text" placeholder="Empresa o Nombre del Cliente" value="Corporativo InnovaTech México S.A. de C.V." oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          <div class="grid grid-cols-2 gap-2">
+            <input id="q-client-rfc" type="text" placeholder="RFC del Cliente" value="CIM220515ABC" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+            <input id="q-client-phone" type="text" placeholder="Teléfono del Cliente" value="+52 55 9876 5432" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          </div>
+          <input id="q-client-address" type="text" placeholder="Dirección del Cliente" value="Paseo de la Reforma 250, Juárez, Cuauhtémoc, CDMX" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+        </div>
+
+        <!-- Partidas -->
+        <div class="space-y-3 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wide">Cláusulas Comerciales</h3>
-            <button onclick="addCustomClause('q')" class="text-xs text-emerald-400 hover:underline">+ Agregar</button>
+            <h3 class="text-xs font-semibold text-white">Partidas / Servicios Cotizados</h3>
+            <button onclick="addQuotationItem()" class="text-xs text-emerald-400 hover:text-emerald-300 font-semibold">+ Agregar Partida</button>
           </div>
-          <div id="q-clauses-container" class="space-y-2">
-            <!-- clauses injected by JS -->
+          <div id="q-items-container" class="space-y-2.5"></div>
+          
+          <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800">
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-0.5">IVA (%)</label>
+              <input id="q-iva" type="number" value="16" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-white">
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-0.5">Descuento (%)</label>
+              <input id="q-discount" type="number" value="0" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-white">
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-0.5">Moneda</label>
+              <select id="q-currency" onchange="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-white">
+                <option value="MXN">MXN (Pesos)</option>
+                <option value="USD">USD (Dólares)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Datos Bancarios -->
+        <div class="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <h3 class="text-xs font-semibold text-emerald-400">Datos Bancarios para Pago</h3>
+          <div class="grid grid-cols-2 gap-2">
+            <input id="q-bank" type="text" placeholder="Banco (ej. BBVA)" value="BBVA México" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+            <input id="q-clabe" type="text" placeholder="CLABE (18 dígitos)" value="012180001234567890" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          </div>
+          <input id="q-beneficiary" type="text" placeholder="Beneficiario" value="Tracción Digital S.A.S. de C.V." oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+        </div>
+
+        <!-- Cláusulas -->
+        <div class="space-y-3 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-semibold text-white">Términos y Condiciones (Cláusulas)</h3>
+            <button onclick="addClause('q')" class="text-xs text-emerald-400 hover:text-emerald-300 font-semibold">+ Agregar Cláusula</button>
+          </div>
+          <div id="q-clauses-container" class="space-y-2"></div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 2: REMISIÓN ==================== -->
+      <div id="tab-content-remision" class="hidden space-y-5">
+        <div class="border-b border-slate-800 pb-2">
+          <h2 class="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">2. Editor de Notas de Remisión</h2>
+          <p class="text-xs text-slate-400">Constancia de entrega formal de bienes, equipos o insumos con firmas de transportista y recepción.</p>
+        </div>
+
+        <!-- Folio y Datos Generales -->
+        <div class="grid grid-cols-3 gap-2 bg-slate-900/70 p-3 rounded-lg border border-slate-800">
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1">Folio Remisión</label>
+            <input id="r-folio" type="text" value="REM-2026-018" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-white">
+          </div>
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1">Fecha Entrega</label>
+            <input id="r-date" type="date" value="2026-11-13" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-white">
+          </div>
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1">Orden de Compra</label>
+            <input id="r-order" type="text" value="OC-2026-894" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2 py-1 text-xs text-white">
+          </div>
+        </div>
+
+        <!-- Emisor y Cliente -->
+        <div class="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <h3 class="text-xs font-semibold text-emerald-400">Emisor y Destino de Mercancía</h3>
+          <input id="r-issuer" type="text" placeholder="Empresa Emisora" value="Tracción Digital / Logística y Suministros" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          <div class="grid grid-cols-2 gap-2">
+            <input id="r-issuer-rfc" type="text" placeholder="RFC Emisor" value="TDI240101XYZ" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+            <input id="r-issuer-phone" type="text" placeholder="Teléfono Emisor" value="+52 55 1234 5678" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          </div>
+          <input id="r-client" type="text" placeholder="Cliente o Receptor" value="Grupo Comercial del Centro S.A. de C.V." oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          <input id="r-client-address" type="text" placeholder="Dirección de Destino / Almacén / Obra" value="Parque Industrial Vallejo, Bodega 4-B, Azcapotzalco, CDMX" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+        </div>
+
+        <!-- Logística y Transporte -->
+        <div class="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <h3 class="text-xs font-semibold text-emerald-400">Datos del Transporte y Recepción</h3>
+          <div class="grid grid-cols-2 gap-2">
+            <input id="r-carrier" type="text" placeholder="Fletera / Transportista" value="Mensajería Directa Express S.A." oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+            <input id="r-driver" type="text" placeholder="Nombre del Chofer" value="Jorge Luis Pérez Mendoza" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <input id="r-plates" type="text" placeholder="Placas / Vehículo" value="Camioneta Nissan NP300 - Placas 48-AK-9Z" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+            <input id="r-receiver" type="text" placeholder="Persona que recibe" value="Lic. Carlos Mendoza Ramos" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          </div>
+          <input id="r-obs" type="text" placeholder="Observaciones de entrega / sellos" value="Material entregado en cajas cerradas y precintadas. Inspeccionado en presencia de almacén." oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+        </div>
+
+        <!-- Artículos entregados -->
+        <div class="space-y-3 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-semibold text-white">Artículos y Mercancías Entregadas</h3>
+            <button onclick="addDeliveryItem()" class="text-xs text-emerald-400 hover:text-emerald-300 font-semibold">+ Agregar Artículo</button>
+          </div>
+          <div id="r-items-container" class="space-y-2.5"></div>
+        </div>
+
+        <!-- Cláusulas de Entrega -->
+        <div class="space-y-3 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-semibold text-white">Condiciones de Entrega y Recepción</h3>
+            <button onclick="addClause('r')" class="text-xs text-emerald-400 hover:text-emerald-300 font-semibold">+ Agregar Cláusula</button>
+          </div>
+          <div id="r-clauses-container" class="space-y-2"></div>
+        </div>
+      </div>
+
+      <!-- ==================== TAB 3: CONTRATO ==================== -->
+      <div id="tab-content-contrato" class="hidden space-y-5">
+        <div class="border-b border-slate-800 pb-2">
+          <h2 class="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">3. Editor de Contratos Legales</h2>
+          <p class="text-xs text-slate-400">Elige la plantilla jurídica y personaliza declaraciones, partes, contraprestación y todas sus cláusulas.</p>
+        </div>
+
+        <!-- Selector de Plantilla de Contrato -->
+        <div class="bg-slate-900 p-2 rounded-lg border border-slate-800 grid grid-cols-2 gap-1.5 text-xs">
+          <button onclick="selectContractTemplate('servicios')" id="btn-ct-servicios" class="py-1.5 px-2 rounded bg-emerald-500 text-slate-950 font-bold">Prestación de Servicios</button>
+          <button onclick="selectContractTemplate('arrendamiento')" id="btn-ct-arrendamiento" class="py-1.5 px-2 rounded text-slate-300 hover:bg-slate-800">Arrendamiento Inmueble</button>
+          <button onclick="selectContractTemplate('nda')" id="btn-ct-nda" class="py-1.5 px-2 rounded text-slate-300 hover:bg-slate-800">Confidencialidad (NDA)</button>
+          <button onclick="selectContractTemplate('compraventa')" id="btn-ct-compraventa" class="py-1.5 px-2 rounded text-slate-300 hover:bg-slate-800">Compraventa de Muebles</button>
+        </div>
+
+        <!-- Datos del Contrato -->
+        <div class="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <label class="text-[11px] text-slate-400 block">Título del Contrato</label>
+          <input id="c-title" type="text" value="CONTRATO DE PRESTACIÓN DE SERVICIOS PROFESIONALES" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          <label class="text-[11px] text-slate-400 block">Lugar y Fecha de Celebración</label>
+          <input id="c-date" type="text" value="Ciudad de México, a 13 de Noviembre de 2026" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+        </div>
+
+        <!-- Parte A -->
+        <div class="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <div class="flex justify-between items-center">
+            <h3 class="text-xs font-semibold text-emerald-400">Parte A (Prestador / Arrendador / Vendedor)</h3>
+            <input id="c-role-a" type="text" value="EL PRESTADOR" oninput="renderDoc()" class="w-32 text-right bg-transparent text-xs text-emerald-400 font-bold border-b border-slate-700">
+          </div>
+          <input id="c-name-a" type="text" placeholder="Razón Social o Nombre Completo" value="Tracción Digital S.A.S. de C.V." oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          <div class="grid grid-cols-2 gap-2">
+            <input id="c-rfc-a" type="text" placeholder="RFC" value="TDI240101XYZ" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+            <input id="c-rep-a" type="text" placeholder="Representante Legal" value="Ing. Alejandro Morales Rivera" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          </div>
+          <input id="c-address-a" type="text" placeholder="Domicilio Legal" value="Av. Insurgentes Sur 1602, Benito Juárez, C.P. 03920, CDMX" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+        </div>
+
+        <!-- Parte B -->
+        <div class="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <div class="flex justify-between items-center">
+            <h3 class="text-xs font-semibold text-emerald-400">Parte B (Cliente / Arrendatario / Comprador)</h3>
+            <input id="c-role-b" type="text" value="EL CLIENTE" oninput="renderDoc()" class="w-32 text-right bg-transparent text-xs text-emerald-400 font-bold border-b border-slate-700">
+          </div>
+          <input id="c-name-b" type="text" placeholder="Razón Social o Nombre Completo" value="Comercializadora Vanguardia Digital S.A. de C.V." oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          <div class="grid grid-cols-2 gap-2">
+            <input id="c-rfc-b" type="text" placeholder="RFC" value="CVD190822GH4" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+            <input id="c-rep-b" type="text" placeholder="Representante Legal" value="Mtra. Sofía Valenzuela Herrera" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          </div>
+          <input id="c-address-b" type="text" placeholder="Domicilio Legal" value="Calle Durango 245, Roma Norte, Cuauhtémoc, C.P. 06700, CDMX" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+        </div>
+
+        <!-- Condiciones Económicas y Vigencia -->
+        <div class="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <h3 class="text-xs font-semibold text-white">Contraprestación y Vigencia</h3>
+          <div class="grid grid-cols-2 gap-2">
+            <input id="c-amount" type="number" placeholder="Monto" value="45000" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+            <input id="c-currency" type="text" placeholder="Moneda" value="MXN" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          </div>
+          <input id="c-payment" type="text" placeholder="Condiciones de Pago" value="50% de anticipo a la firma y 50% al término y aceptación de entregables" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          <input id="c-duration" type="text" placeholder="Plazo de vigencia" value="60 días naturales a partir de la firma" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+        </div>
+
+        <!-- Declaraciones Legales -->
+        <div class="space-y-3 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-semibold text-white">Declaraciones Legales</h3>
+            <button onclick="addDeclaration()" class="text-xs text-emerald-400 hover:text-emerald-300 font-semibold">+ Agregar Declaración</button>
+          </div>
+          <div id="c-declarations-container" class="space-y-2"></div>
+        </div>
+
+        <!-- Cláusulas Contractuales -->
+        <div class="space-y-3 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-semibold text-white">Cláusulas del Contrato</h3>
+            <button onclick="addClause('c')" class="text-xs text-emerald-400 hover:text-emerald-300 font-semibold">+ Agregar Cláusula</button>
+          </div>
+          <div id="c-clauses-container" class="space-y-2"></div>
+        </div>
+
+        <!-- Testigos -->
+        <div class="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <h3 class="text-xs font-semibold text-white">Testigos del Instrumento</h3>
+          <div class="grid grid-cols-2 gap-2">
+            <input id="c-w1-name" type="text" placeholder="Nombre Testigo 1" value="Lic. Roberto Garza Treviño" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+            <input id="c-w1-id" type="text" placeholder="INE Testigo 1" value="INE: 0839217823901" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <input id="c-w2-name" type="text" placeholder="Nombre Testigo 2" value="Lic. Mariana Cruz Ochoa" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+            <input id="c-w2-id" type="text" placeholder="INE Testigo 2" value="INE: 9482103948201" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
           </div>
         </div>
       </div>
 
-      <!-- Otros tabs placeholders for preview -->
-      <div id="tab-content-other" class="hidden space-y-4">
-        <h2 id="other-title" class="text-base font-bold text-white"></h2>
-        <p class="text-xs text-slate-400">Edita los parámetros directamente o visualiza el documento maquetado en el panel derecho.</p>
-        <div id="other-inputs" class="space-y-3"></div>
+      <!-- ==================== TAB 4: CARTA PODER ==================== -->
+      <div id="tab-content-cartapoder" class="hidden space-y-5">
+        <div class="border-b border-slate-800 pb-2">
+          <h2 class="text-sm font-bold text-white uppercase tracking-wider text-emerald-400">4. Editor de Cartas Poder</h2>
+          <p class="text-xs text-slate-400">Mandato legal para trámites vehiculares, gestiones públicas, bancos o cobranza con 4 firmas de ley.</p>
+        </div>
+
+        <!-- Selector de Subtipo de Poder -->
+        <div class="bg-slate-900 p-2 rounded-lg border border-slate-800 grid grid-cols-2 gap-1.5 text-xs">
+          <button onclick="selectPowerSubtype('general')" id="btn-pw-general" class="py-1.5 px-2 rounded bg-emerald-500 text-slate-950 font-bold">Trámites Generales</button>
+          <button onclick="selectPowerSubtype('vehicular')" id="btn-pw-vehicular" class="py-1.5 px-2 rounded text-slate-300 hover:bg-slate-800">Trámite Vehicular (SEMOVI)</button>
+          <button onclick="selectPowerSubtype('tramites')" id="btn-pw-tramites" class="py-1.5 px-2 rounded text-slate-300 hover:bg-slate-800">Servicios (CFE / SACMEX)</button>
+          <button onclick="selectPowerSubtype('cobro')" id="btn-pw-cobro" class="py-1.5 px-2 rounded text-slate-300 hover:bg-slate-800">Cobro de Cheques / Pagos</button>
+        </div>
+
+        <!-- Lugar, Fecha y Destinatario -->
+        <div class="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">Lugar y Fecha</label>
+              <input id="p-date" type="text" value="Ciudad de México, a 13 de Noviembre de 2026" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">Vigencia del Poder</label>
+              <input id="p-valid" type="text" value="31 de Diciembre de 2026" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+            </div>
+          </div>
+          <label class="text-[11px] text-slate-400 block">Destinatario / Autoridad</label>
+          <input id="p-target" type="text" value="A QUIEN CORRESPONDA / AUTORIDADES ADMINISTRATIVAS Y JUDICIALES COMPETENTES:" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          <label class="text-[11px] text-slate-400 block">Fundamento Legal</label>
+          <input id="p-basis" type="text" value="Con fundamento en los artículos 2546, 2551 fracción III, 2554 y relativos del Código Civil Federal y sus correlativos vigentes:" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+        </div>
+
+        <!-- Otorgante -->
+        <div class="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <h3 class="text-xs font-semibold text-emerald-400">Otorgante (Poderdante - Quien confiere el poder)</h3>
+          <input id="p-grantor-name" type="text" placeholder="Nombre Completo" value="C. Gerardo Montes de Oca Lozano" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          <div class="grid grid-cols-2 gap-2">
+            <input id="p-grantor-rfc" type="text" placeholder="RFC o CURP" value="MOLG780914HDFZNR03" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+            <input id="p-grantor-id" type="text" placeholder="Tipo y Núm. Identificación (INE)" value="INE: 0394819284710" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          </div>
+          <input id="p-grantor-address" type="text" placeholder="Domicilio Particular" value="Calle Amores #830, Col. Del Valle Norte, Benito Juárez, CDMX" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+        </div>
+
+        <!-- Apoderado -->
+        <div class="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <h3 class="text-xs font-semibold text-emerald-400">Apoderado (Aceptante - Quien recibe las facultades)</h3>
+          <input id="p-attorney-name" type="text" placeholder="Nombre Completo" value="Lic. Patricia Zambrano Fuentes" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          <div class="grid grid-cols-2 gap-2">
+            <input id="p-attorney-rfc" type="text" placeholder="RFC o CURP" value="ZAFP860405MDFMNR09" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+            <input id="p-attorney-id" type="text" placeholder="Tipo y Núm. Identificación (INE)" value="INE: 9182736450192" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          </div>
+          <input id="p-attorney-address" type="text" placeholder="Domicilio Particular" value="Av. Cuauhtémoc #450, Col. Narvarte Poniente, Benito Juárez, CDMX" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+        </div>
+
+        <!-- Descripción pormenorizada de facultades -->
+        <div class="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <h3 class="text-xs font-semibold text-white">Facultades Conferidas (Redacción Legal Amplia)</h3>
+          <textarea id="p-powers" rows="5" oninput="renderDoc()" class="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white leading-relaxed">Para que en mi nombre y representación comparezca ante toda clase de autoridades administrativas, federales, estatales o municipales, así como ante personas físicas, personas morales e instituciones bancarias o de crédito; con facultades expresas para promover solicitudes, exhibir y cotejar documentos originales, oír y recibir notificaciones, formular acuerdos, pagar derechos o contribuciones y firmar todos los formatos, actas y promociones que resulten indispensables para el debido desahogo de las gestiones encomendadas.</textarea>
+        </div>
+
+        <!-- Cláusulas de la Carta Poder -->
+        <div class="space-y-3 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-semibold text-white">Límites, Revocación y Cláusulas</h3>
+            <button onclick="addClause('p')" class="text-xs text-emerald-400 hover:text-emerald-300 font-semibold">+ Agregar Cláusula</button>
+          </div>
+          <div id="p-clauses-container" class="space-y-2"></div>
+        </div>
+
+        <!-- Testigos de la Carta Poder -->
+        <div class="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+          <h3 class="text-xs font-semibold text-white">Testigos (Indispensables para Validez en México)</h3>
+          <div class="grid grid-cols-2 gap-2">
+            <input id="p-w1-name" type="text" placeholder="Nombre Testigo 1" value="C. Daniel Aguilar Ponce" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+            <input id="p-w1-id" type="text" placeholder="CURP / INE Testigo 1" value="CURP: AUPD820101HDFXX01" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <input id="p-w2-name" type="text" placeholder="Nombre Testigo 2" value="C. Lorena Cisneros Téllez" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+            <input id="p-w2-id" type="text" placeholder="CURP / INE Testigo 2" value="CURP: CITL891212MDFXX02" oninput="renderDoc()" class="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white">
+          </div>
+        </div>
       </div>
+
     </div>
 
     <!-- Right Live Sheet Preview -->
-    <div id="preview-panel" class="lg:col-span-7 bg-slate-950 flex flex-col p-4 sm:p-6">
+    <div id="preview-panel" class="lg:col-span-7 bg-slate-950 flex flex-col p-4 sm:p-6 max-h-[calc(100vh-4rem)]">
       <div class="flex items-center justify-between bg-slate-900 border border-slate-800 px-4 py-2.5 rounded-t-xl no-print">
-        <span class="text-xs font-semibold text-slate-300">Hoja Imprimible / Exportable en PDF</span>
-        <button onclick="window.print()" class="inline-flex items-center gap-1.5 rounded-md bg-emerald-500 px-3 py-1 text-xs font-semibold text-slate-950 hover:bg-emerald-400 transition-colors">
-          🖨️ Imprimir / Guardar en PDF
-        </button>
+        <div class="flex items-center gap-2">
+          <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+          <span class="text-xs font-semibold text-slate-300">Hoja Imprimible en Vivo (Vectorial / PDF)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="copyDocText()" class="inline-flex items-center gap-1 rounded bg-slate-800 px-2.5 py-1 text-xs text-slate-200 hover:bg-slate-700 border border-slate-700">
+            Copiar Texto
+          </button>
+          <button onclick="window.print()" class="inline-flex items-center gap-1.5 rounded-md bg-emerald-500 px-3.5 py-1.5 text-xs font-semibold text-slate-950 hover:bg-emerald-400 transition-colors shadow">
+            🖨️ Imprimir / Guardar en PDF
+          </button>
+        </div>
       </div>
 
       <div class="bg-slate-950/60 p-4 flex justify-center flex-1 overflow-y-auto">
-        <div id="printable-sheet" class="w-full max-w-[800px] bg-white text-slate-900 shadow-2xl rounded p-10 text-[13px] leading-relaxed border border-slate-200">
-          <!-- Dynamic Content -->
+        <div id="printable-sheet" class="w-full max-w-[820px] bg-white text-slate-900 shadow-2xl rounded p-10 sm:p-12 text-[12.5px] leading-relaxed border border-slate-200">
           <div id="sheet-body"></div>
         </div>
       </div>
@@ -173,213 +471,683 @@
     </svg>
   </a>
 
+  <!-- SCRIPT LOGIC: COMPLETE TWO-WAY BINDING FOR ALL 4 TABS -->
   <script>
     let currentTab = 'cotizacion';
-    const qClauses = [
-      { id: 1, title: '1. Vigencia', text: 'Los costos presentados son válidos durante 15 días naturales a partir de la emisión.', enabled: true },
-      { id: 2, title: '2. Forma de Pago', text: '50% anticipo al ordenar y 50% restante contra entrega final a entera satisfacción.', enabled: true },
-      { id: 3, title: '3. Garantía', text: 'Se incluye garantía de 30 días naturales por defectos técnicos o correcciones atribuibles al alcance.', enabled: true }
+
+    // State Collections
+    const qItems = [
+      { id: 1, qty: 1, unit: 'Servicio', desc: 'Desarrollo de Plataforma Web a la Medida (Next.js, responsive, optimización técnica SEO y panel administrativo)', price: 28500 },
+      { id: 2, qty: 1, unit: 'Licencia', desc: 'Configuración de Infraestructura Cloud, Dominio SSL y Despliegue en Red Global Edge', price: 4200 },
+      { id: 3, qty: 3, unit: 'Meses', desc: 'Póliza de Mantenimiento Preventivo, Actualizaciones de Seguridad y Soporte Técnico Continuo', price: 2500 }
     ];
 
-    function renderQuotationClauses() {
-      const container = document.getElementById('q-clauses-container');
-      container.innerHTML = qClauses.map((c, i) => `
-        <div class="p-2.5 rounded bg-slate-900 border border-slate-800 flex items-start gap-2 text-xs">
-          <input type="checkbox" ${c.enabled ? 'checked' : ''} onchange="toggleClause(${c.id})" class="mt-1">
-          <div class="flex-1">
-            <input type="text" value="${c.title}" oninput="editClauseTitle(${c.id}, this.value)" class="w-full bg-transparent font-semibold text-slate-200 border-b border-transparent focus:border-emerald-500 mb-1">
-            <textarea rows="2" oninput="editClauseText(${c.id}, this.value)" class="w-full bg-slate-950 p-1.5 rounded border border-slate-800 text-slate-300">${c.text}</textarea>
+    const qClauses = [
+      { id: 1, title: '1. Vigencia de la Cotización', text: 'Los costos, descuentos y plazos estipulados en esta cotización tienen una validez de 15 días naturales a partir de la fecha de expedición.', enabled: true },
+      { id: 2, title: '2. Condiciones y Forma de Pago', text: '50% de anticipo al formalizar y autorizar la orden de trabajo; el 50% remanente se liquidará a la entrega final y visto bueno del cliente.', enabled: true },
+      { id: 3, title: '3. Tiempos de Entrega', text: 'El tiempo estimado de entrega comenzará a computarse una vez recibido el anticipo y toda la documentación, accesos y contenidos requeridos.', enabled: true },
+      { id: 4, title: '4. Garantía y Correcciones', text: 'Se incluye un periodo de 30 días naturales de garantía posterior a la entrega para solventar cualquier inconsistencia técnica.', enabled: true },
+      { id: 5, title: '5. Trabajos Fuera de Alcance', text: 'Cualquier funcionalidad o requerimiento no desglosado expresamente en las partidas se presupuestará de manera independiente.', enabled: true }
+    ];
+
+    const rItems = [
+      { id: 1, qty: 5, unit: 'Equipos', code: 'SRV-TD-01', desc: 'Servidores Rack 1U Intel Xeon 32GB RAM / 1TB SSD NVMe', condition: 'Nuevo en empaque original sellado' },
+      { id: 2, qty: 10, unit: 'Piezas', code: 'RTR-CIS-29', desc: 'Routers de Comunicación Gigabit Administrables con Licencia de Operación', condition: 'Verificado funcional' },
+      { id: 3, qty: 1, unit: 'Kit', code: 'CAB-ACC-05', desc: 'Juego de Cables de Fibra Óptica Certificados y Patch Panels', condition: 'Sellado de fábrica' }
+    ];
+
+    const rClauses = [
+      { id: 1, title: '1. Recepción a Entera Satisfacción', text: 'El receptor declara recibir las mercancías, productos o bienes descritos en perfecto estado físico, empaque íntegro y con número de piezas verificado.', enabled: true },
+      { id: 2, title: '2. Plazo para Reclamaciones', text: 'Cualquier reporte por faltantes o anomalías no detectables a simple vista deberá notificarse por escrito dentro de un plazo máximo de 48 horas hábiles.', enabled: true },
+      { id: 3, title: '3. Reserva de Propiedad', text: 'La titularidad de los bienes amparados por esta nota de remisión queda reservada al emisor hasta el pago total de la factura correspondiente.', enabled: true },
+      { id: 4, title: '4. Política de Devoluciones', text: 'No se admitirán devoluciones de productos sin su empaque original o que muestren huellas de maltrato, alteración o instalación indebida.', enabled: true }
+    ];
+
+    let cDeclarations = [
+      { id: 1, title: 'I. DECLARA EL PRESTADOR:', text: 'Ser una sociedad mercantil legalmente constituida conforme a las leyes mexicanas, con facultades plenas para celebrar este acto y contando con la capacidad técnica y financiera necesaria.', enabled: true },
+      { id: 2, title: 'II. DECLARA EL CLIENTE:', text: 'Tener capacidad legal bastante para contratar y obligarse, contando con los recursos económicos indispensables para liquidar la contraprestación pactada.', enabled: true },
+      { id: 3, title: 'III. DECLARAN AMBAS PARTES:', text: 'Que en la celebración del presente contrato no media error, dolo, violencia, mala fe ni vicio alguno del consentimiento que pudiera invalidarlo.', enabled: true }
+    ];
+
+    let cClauses = [
+      { id: 1, title: 'PRIMERA. OBJETO DEL CONTRATO', text: 'EL PRESTADOR se obliga a prestar a favor de EL CLIENTE sus servicios profesionales especializados consistentes en el diseño, desarrollo, configuración y despliegue de soluciones tecnológicas con apego a los estándares acordados.', enabled: true },
+      { id: 2, title: 'SEGUNDA. CONTRAPRESTACIÓN Y CFDI', text: 'EL CLIENTE pagará el monto pactado en las fechas indicadas. EL PRESTADOR expedirá los Comprobantes Fiscales Digitales por Internet (CFDI) que cumplan con los requisitos del SAT.', enabled: true },
+      { id: 3, title: 'TERCERA. VIGENCIA Y PLAZO DE EJECUCIÓN', text: 'El presente instrumento surtirá efectos a partir de la firma y concluirá formalmente a la entrega de los trabajos a entera satisfacción de ambas partes.', enabled: true },
+      { id: 4, title: 'CUARTA. PROPIEDAD INTELECTUAL', text: 'Una vez liquidado el pago total de los honorarios convenidos, EL PRESTADOR transmitirá los derechos patrimoniales sobre los desarrollos generados, reteniendo sus derechos morales de autor.', enabled: true },
+      { id: 5, title: 'QUINTA. CONFIDENCIALIDAD ESTRICTA', text: 'Ambas partes convienen en resguardar bajo estricta reserva toda la información técnica, comercial o financiera a la que tengan acceso con motivo del contrato.', enabled: true },
+      { id: 6, title: 'SEXTA. INEXISTENCIA DE RELACIÓN LABORAL', text: 'Las partes reconocen expresamente que el presente contrato es de naturaleza mercantil y civil. No existe relación de trabajo subordinada al tenor de la Ley Federal del Trabajo.', enabled: true },
+      { id: 7, title: 'SÉPTIMA. RESCISIÓN ANTICIPADA', text: 'Cualquiera de las partes podrá rescindir anticipadamente mediando aviso por escrito con 15 días de anticipación y liquidando los servicios efectivamente devengados.', enabled: true },
+      { id: 8, title: 'OCTAVA. JURISDICCIÓN Y COMPETENCIA', text: 'Para la interpretación y cumplimiento de este instrumento, las partes se someten a la jurisdicción de los Tribunales Competentes de la Ciudad de México, renunciando a otro fuero.', enabled: true }
+    ];
+
+    let pClauses = [
+      { id: 1, title: 'ALCANCE DE LAS FACULTADES CONFERIDAS', text: 'El apoderado cuenta con autorización bastante para presentarse ante oficinas públicas y privadas, exhibir documentos originales, pagar derechos y recibir resoluciones.', enabled: true },
+      { id: 2, title: 'PROHIBICIÓN EXPRESA DE ACTOS DE DOMINIO', text: 'La presente carta poder no autoriza en ningún caso actos de dominio, enajenación de bienes, contratación de créditos ni cesión de derechos patrimoniales del otorgante.', enabled: true },
+      { id: 3, title: 'PROHIBICIÓN DE SUSTITUCIÓN Y RENDICIÓN DE CUENTAS', text: 'Las facultades otorgadas tienen carácter personalísimo e intransferible. El apoderado no podrá delegar este mandato en terceros y rendirá cuentas al concluir la gestión.', enabled: true }
+    ];
+
+    // Functions to Render Items and Clauses
+    function renderQuotationItemsUI() {
+      const c = document.getElementById('q-items-container');
+      c.innerHTML = qItems.map((item, i) => `
+        <div class="p-2.5 rounded bg-slate-950 border border-slate-800 space-y-2">
+          <div class="flex gap-2">
+            <input type="number" min="1" value="${item.qty}" oninput="editQItem(${item.id}, 'qty', this.value)" class="w-16 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white text-center">
+            <input type="text" value="${item.unit}" oninput="editQItem(${item.id}, 'unit', this.value)" class="w-20 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white">
+            <input type="number" value="${item.price}" oninput="editQItem(${item.id}, 'price', this.value)" class="flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white text-right font-medium">
+            <button onclick="deleteQItem(${item.id})" class="p-1 text-slate-500 hover:text-rose-400">✕</button>
           </div>
-          <button onclick="deleteClause(${c.id})" class="text-slate-500 hover:text-rose-400">✕</button>
+          <textarea rows="2" oninput="editQItem(${item.id}, 'desc', this.value)" class="w-full rounded border border-slate-800 bg-slate-900 px-2.5 py-1 text-xs text-slate-200">${item.desc}</textarea>
         </div>
       `).join('');
     }
 
-    function toggleClause(id) {
-      const c = qClauses.find(x => x.id === id);
+    function editQItem(id, field, val) {
+      const it = qItems.find(x => x.id === id);
+      if (!it) return;
+      if (field === 'qty') it.qty = parseFloat(val) || 1;
+      if (field === 'price') it.price = parseFloat(val) || 0;
+      if (field === 'unit') it.unit = val;
+      if (field === 'desc') it.desc = val;
+      renderDoc();
+    }
+    function deleteQItem(id) {
+      if (qItems.length <= 1) return;
+      const idx = qItems.findIndex(x => x.id === id);
+      qItems.splice(idx, 1);
+      renderQuotationItemsUI();
+      renderDoc();
+    }
+    function addQuotationItem() {
+      qItems.push({ id: Date.now(), qty: 1, unit: 'Servicio', desc: 'Concepto adicional', price: 1000 });
+      renderQuotationItemsUI();
+      renderDoc();
+    }
+
+    // Remision Items UI
+    function renderDeliveryItemsUI() {
+      const c = document.getElementById('r-items-container');
+      c.innerHTML = rItems.map((item) => `
+        <div class="p-2.5 rounded bg-slate-950 border border-slate-800 space-y-2">
+          <div class="flex gap-2">
+            <input type="number" min="1" value="${item.qty}" oninput="editRItem(${item.id}, 'qty', this.value)" class="w-16 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white text-center">
+            <input type="text" value="${item.unit}" oninput="editRItem(${item.id}, 'unit', this.value)" class="w-20 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white">
+            <input type="text" value="${item.code}" oninput="editRItem(${item.id}, 'code', this.value)" class="w-28 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white">
+            <button onclick="deleteRItem(${item.id})" class="p-1 text-slate-500 hover:text-rose-400 ml-auto">✕</button>
+          </div>
+          <input type="text" value="${item.desc}" oninput="editRItem(${item.id}, 'desc', this.value)" class="w-full rounded border border-slate-800 bg-slate-900 px-2.5 py-1 text-xs text-white">
+          <input type="text" value="${item.condition}" oninput="editRItem(${item.id}, 'condition', this.value)" class="w-full rounded border border-slate-800 bg-slate-900 px-2.5 py-1 text-xs text-slate-400">
+        </div>
+      `).join('');
+    }
+
+    function editRItem(id, field, val) {
+      const it = rItems.find(x => x.id === id);
+      if (!it) return;
+      if (field === 'qty') it.qty = parseInt(val) || 1;
+      else it[field] = val;
+      renderDoc();
+    }
+    function deleteRItem(id) {
+      if (rItems.length <= 1) return;
+      const idx = rItems.findIndex(x => x.id === id);
+      rItems.splice(idx, 1);
+      renderDeliveryItemsUI();
+      renderDoc();
+    }
+    function addDeliveryItem() {
+      rItems.push({ id: Date.now(), qty: 1, unit: 'Pza', code: 'SKU-00', desc: 'Descripción del producto o insumo', condition: 'Nuevo' });
+      renderDeliveryItemsUI();
+      renderDoc();
+    }
+
+    // Generic Clause UI Generator
+    function renderClausesUI(containerId, list, type) {
+      const c = document.getElementById(containerId);
+      c.innerHTML = list.map((clause) => `
+        <div class="p-2.5 rounded border ${clause.enabled ? 'border-slate-800 bg-slate-950/80' : 'border-slate-800/40 bg-slate-950/30 opacity-60'} space-y-1.5 text-xs">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 flex-1">
+              <input type="checkbox" ${clause.enabled ? 'checked' : ''} onchange="toggleClause('${type}', ${clause.id})" class="rounded">
+              <input type="text" value="${clause.title}" oninput="editClauseTitle('${type}', ${clause.id}, this.value)" class="w-full bg-transparent font-medium text-slate-200 border-b border-transparent focus:border-emerald-500">
+            </div>
+            <button onclick="deleteClause('${type}', ${clause.id})" class="text-slate-500 hover:text-rose-400">✕</button>
+          </div>
+          ${clause.enabled ? `<textarea rows="2" oninput="editClauseText('${type}', ${clause.id}, this.value)" class="w-full rounded border border-slate-800 bg-slate-900 p-1.5 text-slate-300">${clause.text}</textarea>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function getList(type) {
+      if (type === 'q') return qClauses;
+      if (type === 'r') return rClauses;
+      if (type === 'c') return cClauses;
+      if (type === 'cd') return cDeclarations;
+      if (type === 'p') return pClauses;
+      return [];
+    }
+
+    function toggleClause(type, id) {
+      const list = getList(type);
+      const c = list.find(x => x.id === id);
       if (c) c.enabled = !c.enabled;
-      updateQuotation();
+      renderAllClausesUI();
+      renderDoc();
     }
-    function editClauseTitle(id, val) {
-      const c = qClauses.find(x => x.id === id);
+    function editClauseTitle(type, id, val) {
+      const list = getList(type);
+      const c = list.find(x => x.id === id);
       if (c) c.title = val;
-      updateQuotation();
+      renderDoc();
     }
-    function editClauseText(id, val) {
-      const c = qClauses.find(x => x.id === id);
+    function editClauseText(type, id, val) {
+      const list = getList(type);
+      const c = list.find(x => x.id === id);
       if (c) c.text = val;
-      updateQuotation();
+      renderDoc();
     }
-    function deleteClause(id) {
-      const idx = qClauses.findIndex(x => x.id === id);
-      if (idx !== -1) qClauses.splice(idx, 1);
-      renderQuotationClauses();
-      updateQuotation();
+    function deleteClause(type, id) {
+      const list = getList(type);
+      const idx = list.findIndex(x => x.id === id);
+      if (idx !== -1) list.splice(idx, 1);
+      renderAllClausesUI();
+      renderDoc();
     }
-    function addCustomClause() {
-      const title = prompt('Título de la nueva cláusula:', '4. Nueva Cláusula');
+    function addClause(type) {
+      const title = prompt('Título de la nueva cláusula:', 'NUEVA CLÁUSULA');
       if (!title) return;
-      const text = prompt('Texto o estipulación:', 'Descripción de la condición convenida.');
-      qClauses.push({ id: Date.now(), title, text: text || '', enabled: true });
-      renderQuotationClauses();
-      updateQuotation();
+      const text = prompt('Contenido detallado:', 'Estipulación legal o comercial acordada...');
+      const list = getList(type);
+      list.push({ id: Date.now(), title, text: text || '', enabled: true });
+      renderAllClausesUI();
+      renderDoc();
+    }
+    function addDeclaration() {
+      const title = prompt('Título de la declaración:', 'IV. DECLARA...');
+      if (!title) return;
+      const text = prompt('Texto de la declaración:');
+      cDeclarations.push({ id: Date.now(), title, text: text || '', enabled: true });
+      renderAllClausesUI();
+      renderDoc();
     }
 
-    function updateQuotation() {
-      if (currentTab !== 'cotizacion') return;
-      const issuer = document.getElementById('q-issuer').value;
-      const client = document.getElementById('q-client').value;
-      const folio = document.getElementById('q-folio').value;
-      const ivaRate = parseFloat(document.getElementById('q-iva').value) || 0;
-      const concept = document.getElementById('q-concept').value;
-      const amount = parseFloat(document.getElementById('q-amount').value) || 0;
-      const iva = (amount * ivaRate) / 100;
-      const total = amount + iva;
-
-      const activeClausesHtml = qClauses.filter(c => c.enabled).map(c => `
-        <p class="mb-1"><strong>${c.title}:</strong> ${c.text}</p>
-      `).join('');
-
-      document.getElementById('sheet-body').innerHTML = `
-        <div class="space-y-6">
-          <div class="flex justify-between items-start border-b-2 border-slate-900 pb-4">
-            <div>
-              <h1 class="text-2xl font-bold uppercase tracking-tight text-slate-950">${issuer}</h1>
-              <p class="text-xs text-slate-600">Presupuesto y Propuesta Técnica</p>
-            </div>
-            <div class="text-right">
-              <span class="bg-slate-950 text-white font-bold px-3 py-1 text-xs uppercase">COTIZACIÓN</span>
-              <p class="text-sm font-bold text-slate-900 mt-2">Folio: ${folio}</p>
-            </div>
-          </div>
-          <div class="bg-slate-50 border border-slate-200 rounded p-4 text-xs">
-            <p><strong>Cliente:</strong> ${client}</p>
-          </div>
-          <table class="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr class="border-b-2 border-slate-900 font-bold uppercase">
-                <th class="py-2">Descripción</th>
-                <th class="py-2 text-right">Importe</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="border-b border-slate-200">
-                <td class="py-3">${concept}</td>
-                <td class="py-3 text-right font-medium">$${amount.toLocaleString('es-MX')} MXN</td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="flex justify-end text-xs">
-            <div class="w-64 space-y-1">
-              <div class="flex justify-between border-b pb-1"><span>Subtotal:</span><strong>$${amount.toLocaleString('es-MX')}</strong></div>
-              <div class="flex justify-between border-b pb-1"><span>IVA (${ivaRate}%):</span><strong>$${iva.toLocaleString('es-MX')}</strong></div>
-              <div class="flex justify-between text-sm font-bold pt-1"><span>Total:</span><strong>$${total.toLocaleString('es-MX')} MXN</strong></div>
-            </div>
-          </div>
-          <div class="pt-4 border-t border-slate-200 text-[11px] text-slate-700">
-            <h4 class="font-bold text-slate-900 uppercase mb-2">Términos Comerciales:</h4>
-            ${activeClausesHtml}
-          </div>
-          <div class="pt-10 grid grid-cols-2 gap-8 text-center text-xs">
-            <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold mt-1">${issuer}</p><p class="text-slate-500">Emisor Autorizado</p></div>
-            <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold mt-1">${client}</p><p class="text-slate-500">Aceptación (Firma y Sello)</p></div>
-          </div>
-        </div>
-      `;
+    function renderAllClausesUI() {
+      renderClausesUI('q-clauses-container', qClauses, 'q');
+      renderClausesUI('r-clauses-container', rClauses, 'r');
+      renderClausesUI('c-declarations-container', cDeclarations, 'cd');
+      renderClausesUI('c-clauses-container', cClauses, 'c');
+      renderClausesUI('p-clauses-container', pClauses, 'p');
     }
 
+    // Contract Template Selector
+    function selectContractTemplate(t) {
+      ['servicios', 'arrendamiento', 'nda', 'compraventa'].forEach(x => {
+        const b = document.getElementById('btn-ct-' + x);
+        if (x === t) {
+          b.className = 'py-1.5 px-2 rounded bg-emerald-500 text-slate-950 font-bold';
+        } else {
+          b.className = 'py-1.5 px-2 rounded text-slate-300 hover:bg-slate-800';
+        }
+      });
+
+      if (t === 'servicios') {
+        document.getElementById('c-title').value = 'CONTRATO DE PRESTACIÓN DE SERVICIOS PROFESIONALES';
+        document.getElementById('c-role-a').value = 'EL PRESTADOR';
+        document.getElementById('c-role-b').value = 'EL CLIENTE';
+        document.getElementById('c-amount').value = '45000';
+        document.getElementById('c-payment').value = '50% anticipo y 50% al término y aceptación de entregables';
+        cClauses = [
+          { id: 1, title: 'PRIMERA. OBJETO DEL CONTRATO', text: 'EL PRESTADOR se obliga a prestar a favor de EL CLIENTE sus servicios profesionales consistentes en desarrollo de software, diseño y despliegue tecnológico.', enabled: true },
+          { id: 2, title: 'SEGUNDA. HONORARIOS Y CFDI', text: 'EL CLIENTE pagará la contraprestación convenida más IVA, expidiéndose las facturas fiscales electrónicas correspondientes.', enabled: true },
+          { id: 3, title: 'TERCERA. PROPIEDAD INTELECTUAL', text: 'Los derechos patrimoniales sobre los desarrollos finales se transmitirán a EL CLIENTE una vez liquidado el pago total pactado.', enabled: true },
+          { id: 4, title: 'CUARTA. CONFIDENCIALIDAD', text: 'Ambas partes guardarán reserva de información técnica, comercial o financiera no pública.', enabled: true },
+          { id: 5, title: 'QUINTA. INEXISTENCIA DE RELACIÓN LABORAL', text: 'No existe subordinación ni vínculo patronal entre las partes al amparo de la Ley Federal del Trabajo.', enabled: true },
+          { id: 6, title: 'SEXTA. JURISDICCIÓN', text: 'Para la interpretación y cumplimiento, las partes se someten a los Tribunales de la Ciudad de México.', enabled: true }
+        ];
+      } else if (t === 'arrendamiento') {
+        document.getElementById('c-title').value = 'CONTRATO DE ARRENDAMIENTO DE BIEN INMUEBLE';
+        document.getElementById('c-role-a').value = 'EL ARRENDADOR';
+        document.getElementById('c-role-b').value = 'EL ARRENDATARIO';
+        document.getElementById('c-amount').value = '18500';
+        document.getElementById('c-payment').value = 'Mensualidad adelantada dentro de los primeros 5 días de cada mes';
+        cClauses = [
+          { id: 1, title: 'PRIMERA. OBJETO DEL ARRENDAMIENTO', text: 'EL ARRENDADOR otorga en arrendamiento a EL ARRENDATARIO el inmueble ubicado en Calle Providencia #412, Depto 302, Col. Del Valle, Benito Juárez, CDMX, en perfectas condiciones de habitabilidad.', enabled: true },
+          { id: 2, title: 'SEGUNDA. PRECIO DE LA RENTA Y MORA', text: 'La renta mensual será de la cantidad indicada. En caso de atraso en el pago, causará un interés moratorio del 5% mensual.', enabled: true },
+          { id: 3, title: 'TERCERA. DEPÓSITO EN GARANTÍA', text: 'A la firma se entrega el equivalente a un mes de renta en calidad de depósito en garantía, reembolsable al término del contrato.', enabled: true },
+          { id: 4, title: 'CUARTA. DESTINO EXCLUSIVO', text: 'El inmueble se destinará exclusivamente a uso habitacional particular, prohibiéndose el subarriendo total o parcial.', enabled: true },
+          { id: 5, title: 'QUINTA. SERVICIOS Y MANTENIMIENTO', text: 'Correrán por cuenta de EL ARRENDATARIO los pagos de luz (CFE), agua (SACMEX), gas e internet puntualmente.', enabled: true }
+        ];
+      } else if (t === 'nda') {
+        document.getElementById('c-title').value = 'ACUERDO DE CONFIDENCIALIDAD Y NO DIVULGACIÓN (NDA)';
+        document.getElementById('c-role-a').value = 'PARTE DIVULGANTE';
+        document.getElementById('c-role-b').value = 'PARTE RECEPTORA';
+        document.getElementById('c-amount').value = '0';
+        document.getElementById('c-payment').value = 'Sin contraprestación pecuniaria / Vínculo de estricta reserva';
+        cClauses = [
+          { id: 1, title: 'PRIMERA. INFORMACIÓN CONFIDENCIAL', text: 'Se considera confidencial toda información técnica, financiera, comercial, planes de negocio y código transmitido entre las partes.', enabled: true },
+          { id: 2, title: 'SEGUNDA. DEBER DE CUSTODIA', text: 'La PARTE RECEPTORA empleará el mismo grado de cuidado que aplica a su propia información de análoga importancia para evitar divulgaciones no autorizadas.', enabled: true },
+          { id: 3, title: 'TERCERA. VIGENCIA', text: 'Las obligaciones de confidencialidad subsistirán por un periodo de 3 años a partir de la firma del presente instrumento.', enabled: true },
+          { id: 4, title: 'CUARTA. PENALIZACIÓN POR QUEBRANTO', text: 'El incumplimiento dará lugar al pago de daños y perjuicios directos conforme a la Ley de Protección a la Propiedad Industrial.', enabled: true }
+        ];
+      } else if (t === 'compraventa') {
+        document.getElementById('c-title').value = 'CONTRATO PRIVADO DE COMPRAVENTA DE BIEN MUEBLE';
+        document.getElementById('c-role-a').value = 'EL VENDEDOR';
+        document.getElementById('c-role-b').value = 'EL COMPRADOR';
+        document.getElementById('c-amount').value = '32000';
+        document.getElementById('c-payment').value = 'Pago de contado contra entrega física del bien mueble y factura original';
+        cClauses = [
+          { id: 1, title: 'PRIMERA. OBJETO DE LA COMPRAVENTA', text: 'EL VENDEDOR transmite la propiedad libre de todo gravamen de: Estación de Trabajo PC Workstation Core i9, 64GB RAM, RTX 4080 con N/S: ST-2024-9988.', enabled: true },
+          { id: 2, title: 'SEGUNDA. PRECIO CONVENIDO', text: 'El precio es fijado de común acuerdo, liquidándose íntegramente a la firma y entrega de este instrumento.', enabled: true },
+          { id: 3, title: 'TERCERA. SANEAMIENTO PARA EL CASO DE EVICCIÓN', text: 'EL VENDEDOR responde del saneamiento para el caso de evicción y por cualquier vicio oculto no manifestado.', enabled: true }
+        ];
+      }
+      renderAllClausesUI();
+      renderDoc();
+    }
+
+    // Power of Attorney Subtype Selector
+    function selectPowerSubtype(p) {
+      ['general', 'vehicular', 'tramites', 'cobro'].forEach(x => {
+        const b = document.getElementById('btn-pw-' + x);
+        if (x === p) {
+          b.className = 'py-1.5 px-2 rounded bg-emerald-500 text-slate-950 font-bold';
+        } else {
+          b.className = 'py-1.5 px-2 rounded text-slate-300 hover:bg-slate-800';
+        }
+      });
+
+      if (p === 'general') {
+        document.getElementById('p-powers').value = 'Para que en mi nombre y representación comparezca ante toda clase de autoridades administrativas, federales, estatales o municipales, así como ante personas físicas, morales e instituciones privadas; con facultades expresas para promover solicitudes, exhibir y cotejar documentos oficiales, oír y recibir notificaciones y firmar promociones indispensables para el desahogo de mis asuntos.';
+      } else if (p === 'vehicular') {
+        document.getElementById('p-powers').value = 'Para realizar ante la Secretaría de Movilidad (SEMOVI), Secretaría de Finanzas y Módulos de Control Vehicular todos los trámites relativos al vehículo automotor Marca Volkswagen, Submarca Jetta, Modelo 2022, Color Blanco, Placas de Circulación 892-ABC, Número de Serie / NIV: 3VW2K7AJ8NM123456; incluyendo alta o baja de placas, cambio de propietario, reposición de tarjeta de circulación, pago de tenencias y verificación vehicular, quedando autorizado a recoger placas, engomados y tarjeta de circulación expedidas a mi nombre.';
+      } else if (p === 'tramites') {
+        document.getElementById('p-powers').value = 'Para comparecer y gestionar aclaraciones, solicitudes de servicio, contratos de suministro, cambios de titularidad y cancelación o reactivación de cuentas de servicios domiciliarios ante la Comisión Federal de Electricidad (CFE), Sistema de Aguas de la Ciudad de México (SACMEX) y compañías de telefonía fija e internet, respecto al inmueble de mi propiedad.';
+      } else if (p === 'cobro') {
+        document.getElementById('p-powers').value = 'Para que en mi nombre y representación cobre y reciba en caja general o ventanilla el cheque no negociable o pago por concepto de liquidación / finiquito / factura expedido a mi favor, firmando de recibido los recibos de caja, pólizas y contra-recibos que resulten procedentes.';
+      }
+      renderDoc();
+    }
+
+    // MAIN RENDER DOCUMENT FUNCTION (Live Sheet)
+    function renderDoc() {
+      const sheet = document.getElementById('sheet-body');
+
+      // TAB 1: COTIZACIÓN
+      if (currentTab === 'cotizacion') {
+        const issuer = document.getElementById('q-issuer').value;
+        const issuerRfc = document.getElementById('q-issuer-rfc').value;
+        const issuerPhone = document.getElementById('q-issuer-phone').value;
+        const issuerEmail = document.getElementById('q-issuer-email').value;
+        const issuerAddress = document.getElementById('q-issuer-address').value;
+        const client = document.getElementById('q-client').value;
+        const clientRfc = document.getElementById('q-client-rfc').value;
+        const clientPhone = document.getElementById('q-client-phone').value;
+        const clientAddress = document.getElementById('q-client-address').value;
+        const folio = document.getElementById('q-folio').value;
+        const date = document.getElementById('q-date').value;
+        const valid = document.getElementById('q-valid').value;
+        const ivaRate = parseFloat(document.getElementById('q-iva').value) || 0;
+        const discountRate = parseFloat(document.getElementById('q-discount').value) || 0;
+        const currency = document.getElementById('q-currency').value;
+        const bank = document.getElementById('q-bank').value;
+        const clabe = document.getElementById('q-clabe').value;
+        const beneficiary = document.getElementById('q-beneficiary').value;
+
+        const subtotal = qItems.reduce((acc, it) => acc + (it.qty * it.price), 0);
+        const discountAmt = (subtotal * discountRate) / 100;
+        const taxable = subtotal - discountAmt;
+        const ivaAmt = (taxable * ivaRate) / 100;
+        const total = taxable + ivaAmt;
+
+        const itemsRows = qItems.map(it => `
+          <tr class="border-b border-slate-200">
+            <td class="py-2.5 text-center font-bold">${it.qty}</td>
+            <td class="py-2.5 text-slate-600">${it.unit}</td>
+            <td class="py-2.5 font-normal text-slate-900">${it.desc}</td>
+            <td class="py-2.5 text-right font-mono">$${it.price.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+            <td class="py-2.5 text-right font-mono font-bold">$${(it.qty * it.price).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+          </tr>
+        `).join('');
+
+        const activeClauses = qClauses.filter(c => c.enabled).map(c => `
+          <p class="mb-1 text-slate-700"><strong>${c.title}:</strong> ${c.text}</p>
+        `).join('');
+
+        sheet.innerHTML = `
+          <div class="space-y-6">
+            <div class="flex justify-between items-start border-b-2 border-slate-900 pb-5">
+              <div>
+                <h1 class="text-2xl font-bold tracking-tight uppercase text-slate-950">${issuer}</h1>
+                <p class="text-xs text-slate-600 mt-1">RFC: ${issuerRfc} | Tel: ${issuerPhone}</p>
+                <p class="text-xs text-slate-600">${issuerAddress}</p>
+                <p class="text-xs text-slate-600">Email: ${issuerEmail}</p>
+              </div>
+              <div class="text-right">
+                <span class="inline-block bg-slate-950 text-white font-bold px-3 py-1 text-xs tracking-wider uppercase rounded-sm">COTIZACIÓN</span>
+                <p class="text-base font-bold text-slate-900 mt-2">Folio: ${folio}</p>
+                <p class="text-xs text-slate-600">Fecha: ${date}</p>
+                <p class="text-xs text-slate-600">Válida hasta: ${valid}</p>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200 rounded p-4 text-xs">
+              <h3 class="font-bold text-slate-800 uppercase tracking-wider mb-2">Datos del Cliente</h3>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <p class="font-bold text-slate-900">${client}</p>
+                  <p class="text-slate-600">RFC: ${clientRfc}</p>
+                  <p class="text-slate-600">${clientAddress}</p>
+                </div>
+                <div class="text-right sm:text-left">
+                  <p class="text-slate-600">Tel: ${clientPhone}</p>
+                  <p class="text-slate-600">Moneda: <strong>${currency}</strong></p>
+                </div>
+              </div>
+            </div>
+
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="border-b-2 border-slate-900 font-bold uppercase text-slate-900">
+                  <th class="py-2 text-center w-12">Cant.</th>
+                  <th class="py-2 w-20">Unidad</th>
+                  <th class="py-2">Descripción del Servicio / Producto</th>
+                  <th class="py-2 text-right w-28">P. Unitario</th>
+                  <th class="py-2 text-right w-28">Importe</th>
+                </tr>
+              </thead>
+              <tbody>${itemsRows}</tbody>
+            </table>
+
+            <div class="flex justify-end pt-2">
+              <div class="w-72 space-y-1.5 text-xs">
+                <div class="flex justify-between py-1 border-b border-slate-200 text-slate-600"><span>Subtotal:</span><span class="font-bold font-mono">$${subtotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span></div>
+                ${discountRate > 0 ? `<div class="flex justify-between py-1 border-b border-slate-200 text-slate-600"><span>Descuento (${discountRate}%):</span><span class="font-bold text-rose-600 font-mono">-$${discountAmt.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span></div>` : ''}
+                <div class="flex justify-between py-1 border-b border-slate-200 text-slate-600"><span>IVA (${ivaRate}%):</span><span class="font-bold font-mono">$${ivaAmt.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span></div>
+                <div class="flex justify-between py-2 border-t-2 border-slate-900 text-sm font-bold text-slate-950"><span>TOTAL (${currency}):</span><span class="font-mono">$${total.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span></div>
+              </div>
+            </div>
+
+            ${clabe ? `<div class="bg-slate-50 border border-slate-200 rounded p-3 text-xs"><strong class="uppercase block mb-1">Información Bancaria:</strong> Banco: ${bank} | CLABE: <span class="font-mono font-bold">${clabe}</span> | Beneficiario: ${beneficiary}</div>` : ''}
+
+            ${activeClauses ? `<div class="pt-2 border-t border-slate-200 text-[11px]"><h4 class="font-bold text-slate-900 uppercase mb-2">Términos y Condiciones Comerciales:</h4>${activeClauses}</div>` : ''}
+
+            <div class="pt-10 grid grid-cols-2 gap-8 text-center text-xs">
+              <div><div class="border-b border-slate-900 mx-8 pb-1"></div><p class="font-bold text-slate-900 mt-2">${issuer}</p><p class="text-slate-500">Emisor Autorizado</p></div>
+              <div><div class="border-b border-slate-900 mx-8 pb-1"></div><p class="font-bold text-slate-900 mt-2">${client}</p><p class="text-slate-500">Aceptación (Firma y Sello)</p></div>
+            </div>
+          </div>
+        `;
+      }
+
+      // TAB 2: REMISIÓN
+      else if (currentTab === 'remision') {
+        const issuer = document.getElementById('r-issuer').value;
+        const issuerRfc = document.getElementById('r-issuer-rfc').value;
+        const issuerPhone = document.getElementById('r-issuer-phone').value;
+        const client = document.getElementById('r-client').value;
+        const clientAddress = document.getElementById('r-client-address').value;
+        const folio = document.getElementById('r-folio').value;
+        const date = document.getElementById('r-date').value;
+        const order = document.getElementById('r-order').value;
+        const carrier = document.getElementById('r-carrier').value;
+        const driver = document.getElementById('r-driver').value;
+        const plates = document.getElementById('r-plates').value;
+        const receiver = document.getElementById('r-receiver').value;
+        const obs = document.getElementById('r-obs').value;
+
+        const itemsRows = rItems.map(it => `
+          <tr class="border-b border-slate-200">
+            <td class="py-2.5 text-center font-bold">${it.qty}</td>
+            <td class="py-2.5 text-slate-600">${it.unit}</td>
+            <td class="py-2.5 font-mono text-slate-700">${it.code}</td>
+            <td class="py-2.5 font-normal text-slate-900">${it.desc}</td>
+            <td class="py-2.5 text-slate-600 text-[11px]">${it.condition}</td>
+          </tr>
+        `).join('');
+
+        const activeClauses = rClauses.filter(c => c.enabled).map(c => `
+          <p class="mb-1 text-slate-700"><strong>${c.title}:</strong> ${c.text}</p>
+        `).join('');
+
+        sheet.innerHTML = `
+          <div class="space-y-6">
+            <div class="flex justify-between items-start border-b-2 border-slate-900 pb-5">
+              <div>
+                <h1 class="text-2xl font-bold tracking-tight uppercase text-slate-950">${issuer}</h1>
+                <p class="text-xs text-slate-600 mt-1">RFC: ${issuerRfc} | Tel: ${issuerPhone}</p>
+                <p class="text-xs text-slate-600">Comprobante de Entrega y Recepción de Bienes</p>
+              </div>
+              <div class="text-right">
+                <span class="inline-block bg-slate-950 text-white font-bold px-3 py-1 text-xs tracking-wider uppercase rounded-sm">NOTA DE REMISIÓN</span>
+                <p class="text-base font-bold text-slate-900 mt-2">Folio: ${folio}</p>
+                <p class="text-xs text-slate-600">Fecha: ${date}</p>
+                <p class="text-xs text-slate-600">Ref / O.C.: ${order}</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 bg-slate-50 border border-slate-200 rounded p-4 text-xs">
+              <div>
+                <h4 class="font-bold text-slate-800 uppercase tracking-wider mb-1">Entregar a:</h4>
+                <p class="font-bold text-slate-900">${client}</p>
+                <p class="text-slate-600">${clientAddress}</p>
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-800 uppercase tracking-wider mb-1">Logística y Transporte:</h4>
+                <p class="text-slate-700"><strong>Transportista:</strong> ${carrier}</p>
+                <p class="text-slate-700"><strong>Operador / Chofer:</strong> ${driver}</p>
+                <p class="text-slate-700"><strong>Unidad / Placas:</strong> ${plates}</p>
+              </div>
+            </div>
+
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="border-b-2 border-slate-900 font-bold uppercase text-slate-900">
+                  <th class="py-2 text-center w-12">Cant.</th>
+                  <th class="py-2 w-20">Unidad</th>
+                  <th class="py-2 w-24">Código/SKU</th>
+                  <th class="py-2">Descripción de Mercancía / Bienes</th>
+                  <th class="py-2 w-36">Estado / Empaque</th>
+                </tr>
+              </thead>
+              <tbody>${itemsRows}</tbody>
+            </table>
+
+            ${obs ? `<div class="bg-slate-50 border border-slate-200 rounded p-3 text-xs"><strong>Observaciones de Entrega:</strong> ${obs}</div>` : ''}
+
+            ${activeClauses ? `<div class="pt-2 border-t border-slate-200 text-[11px]"><h4 class="font-bold text-slate-900 uppercase mb-2">Condiciones de Entrega y Reclamación:</h4>${activeClauses}</div>` : ''}
+
+            <div class="pt-10 grid grid-cols-2 gap-8 text-center text-xs">
+              <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold text-slate-900 mt-2">${driver || carrier}</p><p class="text-slate-500">Firma de Entrega (Transportista)</p></div>
+              <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold text-slate-900 mt-2">${receiver}</p><p class="text-slate-500">Recibido de Conformidad (Nombre, Firma e INE)</p></div>
+            </div>
+          </div>
+        `;
+      }
+
+      // TAB 3: CONTRATO
+      else if (currentTab === 'contrato') {
+        const title = document.getElementById('c-title').value;
+        const date = document.getElementById('c-date').value;
+        const roleA = document.getElementById('c-role-a').value;
+        const nameA = document.getElementById('c-name-a').value;
+        const rfcA = document.getElementById('c-rfc-a').value;
+        const repA = document.getElementById('c-rep-a').value;
+        const addrA = document.getElementById('c-address-a').value;
+        const roleB = document.getElementById('c-role-b').value;
+        const nameB = document.getElementById('c-name-b').value;
+        const rfcB = document.getElementById('c-rfc-b').value;
+        const repB = document.getElementById('c-rep-b').value;
+        const addrB = document.getElementById('c-address-b').value;
+        const amount = parseFloat(document.getElementById('c-amount').value) || 0;
+        const currency = document.getElementById('c-currency').value;
+        const payment = document.getElementById('c-payment').value;
+        const duration = document.getElementById('c-duration').value;
+        const w1Name = document.getElementById('c-w1-name').value;
+        const w1Id = document.getElementById('c-w1-id').value;
+        const w2Name = document.getElementById('c-w2-name').value;
+        const w2Id = document.getElementById('c-w2-id').value;
+
+        const decsHtml = cDeclarations.filter(d => d.enabled).map(d => `
+          <div class="mb-2"><p><strong>${d.title}</strong> ${d.text}</p></div>
+        `).join('');
+
+        const clausesHtml = cClauses.filter(c => c.enabled).map(c => `
+          <div class="mb-3 leading-relaxed"><p><strong>${c.title}.-</strong> ${c.text}</p></div>
+        `).join('');
+
+        sheet.innerHTML = `
+          <div class="space-y-5 text-justify">
+            <div class="text-center border-b-2 border-slate-900 pb-4">
+              <h1 class="text-lg font-bold tracking-tight uppercase text-slate-950">${title}</h1>
+              <p class="text-xs font-semibold text-slate-600 mt-1 uppercase tracking-wider">CELEBRADO ENTRE ${nameA} Y ${nameB}</p>
+            </div>
+
+            <div class="text-xs leading-relaxed text-slate-800">
+              <p>En la ${date}, celebran el presente instrumento legal, por una parte <strong>${nameA}</strong> (en lo sucesivo denominado como <strong>"${roleA}"</strong>), representado legalmente por <strong>${repA}</strong>, con RFC <strong>${rfcA}</strong> y domicilio en ${addrA}; y por la otra parte <strong>${nameB}</strong> (en lo sucesivo denominado como <strong>"${roleB}"</strong>), representado por <strong>${repB}</strong>, con RFC <strong>${rfcB}</strong> y domicilio en ${addrB}, al tenor de las siguientes:</p>
+            </div>
+
+            <div class="text-xs border-y border-slate-200 py-3 my-2 space-y-1">
+              <h3 class="font-bold uppercase tracking-wider text-slate-950 mb-2">DECLARACIONES</h3>
+              ${decsHtml}
+            </div>
+
+            ${amount > 0 ? `
+              <div class="bg-slate-50 border border-slate-200 rounded p-3 text-xs flex justify-between">
+                <span><strong>Contraprestación acordada:</strong> $${amount.toLocaleString('es-MX')} ${currency}</span>
+                <span><strong>Forma de pago:</strong> ${payment}</span>
+              </div>
+            ` : ''}
+
+            <div class="text-xs pt-1">
+              <h3 class="font-bold uppercase tracking-wider text-slate-950 mb-3">CLÁUSULAS</h3>
+              ${clausesHtml}
+            </div>
+
+            <div class="text-xs text-slate-700 italic pt-2">
+              Leído que fue el presente contrato por las partes y enteradas de su contenido, alcance y fuerza legal, lo firman de común acuerdo en dos tantos en el lugar y fecha señalados en el proemio.
+            </div>
+
+            <div class="pt-8 space-y-8">
+              <div class="grid grid-cols-2 gap-8 text-center text-xs">
+                <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold text-slate-950 mt-2">${nameA}</p><p class="text-slate-600">${roleA}</p><p class="text-[11px] text-slate-500">Por: ${repA}</p></div>
+                <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold text-slate-950 mt-2">${nameB}</p><p class="text-slate-600">${roleB}</p><p class="text-[11px] text-slate-500">Por: ${repB}</p></div>
+              </div>
+
+              ${w1Name || w2Name ? `
+                <div class="grid grid-cols-2 gap-8 text-center text-xs pt-4">
+                  <div><div class="border-b border-slate-900 mx-8 pb-1"></div><p class="font-bold mt-1 text-slate-900">TESTIGO 1</p><p class="text-slate-700">${w1Name}</p><p class="text-[11px] text-slate-500">${w1Id}</p></div>
+                  <div><div class="border-b border-slate-900 mx-8 pb-1"></div><p class="font-bold mt-1 text-slate-900">TESTIGO 2</p><p class="text-slate-700">${w2Name}</p><p class="text-[11px] text-slate-500">${w2Id}</p></div>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }
+
+      // TAB 4: CARTA PODER
+      else if (currentTab === 'cartapoder') {
+        const date = document.getElementById('p-date').value;
+        const valid = document.getElementById('p-valid').value;
+        const target = document.getElementById('p-target').value;
+        const basis = document.getElementById('p-basis').value;
+        const gName = document.getElementById('p-grantor-name').value;
+        const gRfc = document.getElementById('p-grantor-rfc').value;
+        const gId = document.getElementById('p-grantor-id').value;
+        const gAddr = document.getElementById('p-grantor-address').value;
+        const aName = document.getElementById('p-attorney-name').value;
+        const aRfc = document.getElementById('p-attorney-rfc').value;
+        const aId = document.getElementById('p-attorney-id').value;
+        const aAddr = document.getElementById('p-attorney-address').value;
+        const powers = document.getElementById('p-powers').value;
+        const w1Name = document.getElementById('p-w1-name').value;
+        const w1Id = document.getElementById('p-w1-id').value;
+        const w2Name = document.getElementById('p-w2-name').value;
+        const w2Id = document.getElementById('p-w2-id').value;
+
+        const clausesHtml = pClauses.filter(c => c.enabled).map(c => `
+          <p class="mb-2 text-xs leading-relaxed text-slate-800"><strong>${c.title}.-</strong> ${c.text}</p>
+        `).join('');
+
+        sheet.innerHTML = `
+          <div class="space-y-6 text-justify">
+            <div class="flex justify-between items-start border-b-2 border-slate-900 pb-3">
+              <div>
+                <h1 class="text-2xl font-bold tracking-tight uppercase text-slate-950">CARTA PODER</h1>
+                <p class="text-xs text-slate-600 font-medium">Documento Privado de Mandato y Representación Legal</p>
+              </div>
+              <div class="text-right text-xs">
+                <p class="font-bold text-slate-900">${date}</p>
+                <p class="text-slate-500 mt-1">Vigencia hasta: <strong>${valid}</strong></p>
+              </div>
+            </div>
+
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-900">${target}</div>
+
+            <div class="text-xs text-slate-800 leading-relaxed space-y-3">
+              <p>${basis}</p>
+              <p>Por la presente, yo <strong>${gName}</strong>, con RFC/CURP <strong>${gRfc}</strong>, acreditando mi identidad con <strong>${gId}</strong> y señalando como domicilio particular el ubicado en <strong>${gAddr}</strong>, por mi propio derecho otorgo mandato y confiero <strong>PODER BASTANTE Y SUFICIENTE</strong> a favor de <strong>${aName}</strong>, con RFC/CURP <strong>${aRfc}</strong>, identificándose con <strong>${aId}</strong> y domicilio en <strong>${aAddr}</strong>, para que en mi nombre y representación lleve a cabo las siguientes facultades y gestiones:</p>
+
+              <div class="bg-slate-50 border-l-4 border-slate-900 p-4 rounded-r text-slate-950 leading-relaxed text-xs font-normal">
+                ${powers}
+              </div>
+            </div>
+
+            ${clausesHtml ? `<div class="pt-2 border-t border-slate-200">${clausesHtml}</div>` : ''}
+
+            <div class="text-xs text-slate-700 italic pt-2">
+              Se otorga la presente carta poder con la ratificación y comparecencia de los dos testigos cuyos nombres, domicilios y firmas constan al calce del presente documento.
+            </div>
+
+            <div class="pt-8 space-y-8">
+              <div class="grid grid-cols-2 gap-8 text-center text-xs">
+                <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold text-slate-950 mt-1">OTORGANTE (PODERDANTE)</p><p class="text-slate-800 font-semibold">${gName}</p><p class="text-[11px] text-slate-500">${gId} | ${gRfc}</p></div>
+                <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold text-slate-950 mt-1">ACEPTANTE (APODERADO)</p><p class="text-slate-800 font-semibold">${aName}</p><p class="text-[11px] text-slate-500">${aId} | ${aRfc}</p></div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-8 text-center text-xs pt-4">
+                <div><div class="border-b border-slate-900 mx-8 pb-1"></div><p class="font-bold text-slate-950 mt-1">TESTIGO 1</p><p class="text-slate-800 font-medium">${w1Name}</p><p class="text-[11px] text-slate-500">${w1Id}</p></div>
+                <div><div class="border-b border-slate-900 mx-8 pb-1"></div><p class="font-bold text-slate-950 mt-1">TESTIGO 2</p><p class="text-slate-800 font-medium">${w2Name}</p><p class="text-[11px] text-slate-500">${w2Id}</p></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // Switch Tabs
     function switchTab(tab) {
       currentTab = tab;
       ['cotizacion', 'remision', 'contrato', 'cartapoder'].forEach(t => {
         const btn = document.getElementById('tab-btn-' + t);
+        const content = document.getElementById('tab-content-' + t);
         if (t === tab) {
           btn.className = 'px-3.5 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-bold transition-all';
+          content.classList.remove('hidden');
         } else {
           btn.className = 'px-3.5 py-1.5 rounded-lg text-slate-300 hover:bg-slate-800 transition-all';
+          content.classList.add('hidden');
         }
       });
+      renderDoc();
+    }
 
-      if (tab === 'cotizacion') {
-        document.getElementById('tab-content-cotizacion').classList.remove('hidden');
-        document.getElementById('tab-content-other').classList.add('hidden');
-        updateQuotation();
-      } else {
-        document.getElementById('tab-content-cotizacion').classList.add('hidden');
-        document.getElementById('tab-content-other').classList.remove('hidden');
-
-        if (tab === 'remision') {
-          document.getElementById('other-title').innerText = 'Nota de Remisión y Entrega';
-          document.getElementById('sheet-body').innerHTML = `
-            <div class="space-y-6">
-              <div class="flex justify-between items-start border-b-2 border-slate-900 pb-4">
-                <div><h1 class="text-2xl font-bold uppercase text-slate-950">Tracción Digital / Logística</h1><p class="text-xs text-slate-600">Amparo de Entrega de Bienes</p></div>
-                <div class="text-right"><span class="bg-slate-950 text-white font-bold px-3 py-1 text-xs uppercase">REMISIÓN</span><p class="text-sm font-bold text-slate-900 mt-2">Folio: REM-2026-018</p></div>
-              </div>
-              <div class="bg-slate-50 border p-3 rounded text-xs"><p><strong>Receptor:</strong> Grupo Comercial del Centro S.A. de C.V.</p><p><strong>Destino:</strong> Parque Industrial Vallejo, Bodega 4-B</p></div>
-              <table class="w-full text-left text-xs">
-                <tr class="border-b font-bold"><th class="py-2">Cant</th><th>Descripción</th><th>Estado</th></tr>
-                <tr class="border-b"><td class="py-2">5 Pzas</td><td>Servidores Rack 1U Intel Xeon</td><td>Nuevo / Sellado</td></tr>
-                <tr class="border-b"><td class="py-2">10 Pzas</td><td>Routers de Comunicación Gigabit</td><td>Verificado</td></tr>
-              </table>
-              <div class="text-xs pt-4"><p><strong>Condición:</strong> El receptor declara haber recibido las mercancías en perfecto estado de conservación y empaque original.</p></div>
-              <div class="pt-10 grid grid-cols-2 gap-8 text-center text-xs">
-                <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold mt-1">Entregado por (Transportista)</p></div>
-                <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold mt-1">Recibido de Conformidad</p></div>
-              </div>
-            </div>
-          `;
-        } else if (tab === 'contrato') {
-          document.getElementById('other-title').innerText = 'Contrato de Prestación de Servicios';
-          document.getElementById('sheet-body').innerHTML = `
-            <div class="space-y-6 text-justify">
-              <div class="text-center border-b-2 border-slate-900 pb-3">
-                <h1 class="text-lg font-bold uppercase text-slate-950">CONTRATO DE PRESTACIÓN DE SERVICIOS PROFESIONALES</h1>
-                <p class="text-xs text-slate-600">CELEBRADO ENTRE TRACCIÓN DIGITAL Y EL CLIENTE</p>
-              </div>
-              <p class="text-xs">En la Ciudad de México, celebran el presente instrumento legal, por una parte <strong>Tracción Digital S.A.S. de C.V.</strong> ("EL PRESTADOR"), y por la otra <strong>Comercializadora Vanguardia Digital</strong> ("EL CLIENTE").</p>
-              <div class="space-y-2 text-xs">
-                <p><strong>PRIMERA. OBJETO:</strong> EL PRESTADOR se obliga a diseñar y desplegar soluciones de software a favor de EL CLIENTE.</p>
-                <p><strong>SEGUNDA. HONORARIOS:</strong> La contraprestación asciende a la cantidad acordada más IVA liquidable en dos exhibiciones.</p>
-                <p><strong>TERCERA. PROPIEDAD INTELECTUAL:</strong> Los derechos patrimoniales se transmitirán a EL CLIENTE una vez liquidado el pago total.</p>
-                <p><strong>CUARTA. CONFIDENCIALIDAD:</strong> Ambas partes convienen en no divulgar información técnica o comercial a terceros.</p>
-              </div>
-              <div class="pt-8 grid grid-cols-2 gap-8 text-center text-xs">
-                <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold mt-1">EL PRESTADOR</p></div>
-                <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold mt-1">EL CLIENTE</p></div>
-              </div>
-            </div>
-          `;
-        } else if (tab === 'cartapoder') {
-          document.getElementById('other-title').innerText = 'Carta Poder Privada con 4 Firmas';
-          document.getElementById('sheet-body').innerHTML = `
-            <div class="space-y-6 text-justify">
-              <div class="flex justify-between items-start border-b-2 border-slate-900 pb-3">
-                <div><h1 class="text-2xl font-bold uppercase text-slate-950">CARTA PODER</h1><p class="text-xs text-slate-600">Documento Privado de Mandato</p></div>
-                <div class="text-right text-xs"><p><strong>Lugar y Fecha:</strong> CDMX, a 13 de Noviembre de 2026</p></div>
-              </div>
-              <p class="text-xs font-bold uppercase">A QUIEN CORRESPONDA / AUTORIDADES COMPETENTES:</p>
-              <p class="text-xs">Por la presente otorgo a <strong>Lic. Patricia Zambrano Fuentes</strong> poder bastante y suficiente para que en mi nombre y representación realice todos los trámites, promociones y firmas pertinentes ante las dependencias correspondientes.</p>
-              <div class="bg-slate-50 border-l-4 border-slate-900 p-3 text-xs italic">
-                Facultades: Comparecer, presentar solicitudes, exhibir documentación oficial y oír y recibir notificaciones.
-              </div>
-              <div class="pt-8 space-y-6">
-                <div class="grid grid-cols-2 gap-8 text-center text-xs">
-                  <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold mt-1">OTORGANTE (PODERDANTE)</p></div>
-                  <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold mt-1">ACEPTANTE (APODERADO)</p></div>
-                </div>
-                <div class="grid grid-cols-2 gap-8 text-center text-xs pt-4">
-                  <div><div class="border-b border-slate-900 mx-8 pb-1"></div><p class="font-bold mt-1">TESTIGO 1</p></div>
-                  <div><div class="border-b border-slate-900 mx-8 pb-1"></div><p class="font-bold mt-1">TESTIGO 2</p></div>
-                </div>
-              </div>
-            </div>
-          `;
-        }
+    function resetCurrentTab() {
+      if (confirm('¿Deseas restablecer los valores de esta sección?')) {
+        location.reload();
       }
     }
 
-    renderQuotationClauses();
-    updateQuotation();
+    function copyDocText() {
+      const el = document.getElementById('sheet-body');
+      navigator.clipboard.writeText(el.innerText);
+      alert('Texto copiado al portapapeles');
+    }
+
+    // Initialize
+    renderQuotationItemsUI();
+    renderDeliveryItemsUI();
+    renderAllClausesUI();
+    renderDoc();
   </script>
 </body>
 </html>

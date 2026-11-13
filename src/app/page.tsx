@@ -1,8 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { DocTab, QuotationData, DeliveryData, ContractData, PowerOfAttorneyData, ContractType, PowerSubtype } from "../types/documents";
-import { defaultQuotation, defaultDelivery, defaultContracts, defaultPowerOfAttorney } from "../data/defaultTemplates";
+import {
+  DocTab,
+  QuotationData,
+  DeliveryData,
+  ContractData,
+  PowerOfAttorneyData,
+  ContractType,
+  PowerSubtype,
+} from "../types/documents";
+import {
+  defaultQuotation,
+  defaultDelivery,
+  defaultContracts,
+  defaultPowerOfAttorney,
+} from "../data/defaultTemplates";
 import { ClauseEditor } from "../components/ClauseEditor";
 import { DocumentPreview } from "../components/DocumentPreview";
 import {
@@ -14,18 +27,18 @@ import {
   Trash2,
   RotateCcw,
   ExternalLink,
-  SlidersHorizontal,
-  CheckCircle2,
   Building2,
   UserCheck,
-  CreditCard
+  CreditCard,
+  Briefcase,
+  ShieldCheck,
 } from "lucide-react";
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<DocTab>("cotizacion");
   const [mobileView, setMobileView] = useState<"form" | "preview">("form");
 
-  // State for all 4 types
+  // State for all 4 document types
   const [quotation, setQuotation] = useState<QuotationData>(defaultQuotation);
   const [delivery, setDelivery] = useState<DeliveryData>(defaultDelivery);
   const [contractType, setContractType] = useState<ContractType>("servicios");
@@ -40,9 +53,11 @@ export default function HomePage() {
       if (savedQ) setQuotation(JSON.parse(savedQ));
       const savedD = localStorage.getItem("traxdocs_delivery");
       if (savedD) setDelivery(JSON.parse(savedD));
-    } catch {
-      // ignore
-    }
+      const savedC = localStorage.getItem("traxdocs_contract");
+      if (savedC) setContract(JSON.parse(savedC));
+      const savedP = localStorage.getItem("traxdocs_power");
+      if (savedP) setPower(JSON.parse(savedP));
+    } catch {}
   }, []);
 
   // Save changes
@@ -57,6 +72,18 @@ export default function HomePage() {
       localStorage.setItem("traxdocs_delivery", JSON.stringify(delivery));
     } catch {}
   }, [delivery]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("traxdocs_contract", JSON.stringify(contract));
+    } catch {}
+  }, [contract]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("traxdocs_power", JSON.stringify(power));
+    } catch {}
+  }, [power]);
 
   // Handle contract type change
   const handleContractTypeChange = (type: ContractType) => {
@@ -93,9 +120,9 @@ export default function HomePage() {
       id: `del-${Date.now()}`,
       quantity: 1,
       unit: "Pza",
-      code: "N/A",
-      description: "Descripción de producto o material",
-      condition: "Buen estado",
+      code: "SKU-00",
+      description: "Descripción de producto, equipo o material",
+      condition: "Nuevo / En empaque",
     };
     setDelivery({ ...delivery, items: [...delivery.items, newItem] });
   };
@@ -103,6 +130,36 @@ export default function HomePage() {
   const removeDeliveryItem = (id: string) => {
     if (delivery.items.length <= 1) return;
     setDelivery({ ...delivery, items: delivery.items.filter((i) => i.id !== id) });
+  };
+
+  // Contract Declarations Management
+  const addContractDeclaration = () => {
+    const title = prompt("Título de la declaración:", "IV. DECLARAN AMBAS PARTES:");
+    if (!title) return;
+    const content = prompt("Contenido de la declaración:");
+    const newDec = {
+      id: `dec-${Date.now()}`,
+      title,
+      content: content || "",
+      isEnabled: true,
+    };
+    setContract({ ...contract, declarations: [...(contract.declarations || []), newDec] });
+  };
+
+  const toggleContractDeclaration = (id: string) => {
+    setContract({
+      ...contract,
+      declarations: contract.declarations.map((d) =>
+        d.id === id ? { ...d, isEnabled: !d.isEnabled } : d
+      ),
+    });
+  };
+
+  const deleteContractDeclaration = (id: string) => {
+    setContract({
+      ...contract,
+      declarations: contract.declarations.filter((d) => d.id !== id),
+    });
   };
 
   // Reset current document
@@ -133,7 +190,7 @@ export default function HomePage() {
                   </span>
                 </div>
                 <p className="text-[10px] text-slate-400 leading-tight">
-                  Documentos legales & comerciales
+                  Documentos legales & comerciales 100% editables
                 </p>
               </div>
             </div>
@@ -270,25 +327,25 @@ export default function HomePage() {
       <div className="flex-1 max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 min-h-[calc(100vh-4rem)]">
         {/* LEFT COLUMN: INTERACTIVE EDITOR */}
         <div
-          className={`lg:col-span-5 p-4 sm:p-6 border-r border-slate-800 overflow-y-auto space-y-6 ${
+          className={`lg:col-span-5 p-4 sm:p-5 border-r border-slate-800 overflow-y-auto space-y-6 max-h-[calc(100vh-4rem)] ${
             mobileView === "preview" ? "hidden lg:block" : "block"
           }`}
         >
           {/* TAB 1: FORMULARIO DE COTIZACIÓN */}
           {activeTab === "cotizacion" && (
-            <div className="space-y-6">
-              <div className="border-b border-slate-800 pb-3">
-                <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-emerald-400" />
-                  <span>Configurar Cotización Comercial</span>
+            <div className="space-y-5">
+              <div className="border-b border-slate-800 pb-2">
+                <h2 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  <span>1. Configurar Cotización Comercial</span>
                 </h2>
-                <p className="text-xs text-slate-400 mt-1">
-                  Genera una propuesta económica con desglose de IVA y cláusulas contractuales.
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Modifica cada dato del emisor, cliente, partidas, impuestos y condiciones comerciales.
                 </p>
               </div>
 
               {/* Folio y Fechas */}
-              <div className="grid grid-cols-3 gap-2.5 bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+              <div className="grid grid-cols-3 gap-2 bg-slate-900/70 p-3 rounded-lg border border-slate-800">
                 <div>
                   <label className="text-[11px] font-medium text-slate-400 block mb-1">Folio</label>
                   <input
@@ -319,7 +376,7 @@ export default function HomePage() {
               </div>
 
               {/* Emisor */}
-              <div className="space-y-3 bg-slate-900/60 p-3.5 rounded-lg border border-slate-800">
+              <div className="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
                 <h3 className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
                   <Building2 className="h-3.5 w-3.5" /> Tus Datos (Emisor / Empresa)
                 </h3>
@@ -363,7 +420,7 @@ export default function HomePage() {
               </div>
 
               {/* Cliente */}
-              <div className="space-y-3 bg-slate-900/60 p-3.5 rounded-lg border border-slate-800">
+              <div className="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
                 <h3 className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
                   <UserCheck className="h-3.5 w-3.5" /> Datos del Cliente / Receptor
                 </h3>
@@ -400,13 +457,13 @@ export default function HomePage() {
               </div>
 
               {/* Partidas / Conceptos */}
-              <div className="space-y-3 bg-slate-900/60 p-3.5 rounded-lg border border-slate-800">
+              <div className="space-y-3 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs font-semibold text-white">Partidas / Servicios Cotizados</h3>
                   <button
                     type="button"
                     onClick={addQuotationItem}
-                    className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 font-medium"
+                    className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 font-semibold"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     <span>Agregar Partida</span>
@@ -414,7 +471,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="space-y-2.5">
-                  {quotation.items.map((item, idx) => (
+                  {quotation.items.map((item) => (
                     <div key={item.id} className="p-2.5 rounded bg-slate-950 border border-slate-800 space-y-2">
                       <div className="flex gap-2">
                         <input
@@ -429,7 +486,7 @@ export default function HomePage() {
                               items: quotation.items.map((it) => (it.id === item.id ? { ...it, quantity: val } : it)),
                             });
                           }}
-                          className="w-16 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white text-center"
+                          className="w-16 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white text-center font-bold"
                         />
                         <input
                           type="text"
@@ -442,7 +499,7 @@ export default function HomePage() {
                               items: quotation.items.map((it) => (it.id === item.id ? { ...it, unit: val } : it)),
                             });
                           }}
-                          className="w-24 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white"
+                          className="w-20 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white"
                         />
                         <input
                           type="number"
@@ -455,7 +512,7 @@ export default function HomePage() {
                               items: quotation.items.map((it) => (it.id === item.id ? { ...it, unitPrice: val } : it)),
                             });
                           }}
-                          className="flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white text-right"
+                          className="flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white text-right font-medium"
                         />
                         <button
                           type="button"
@@ -518,7 +575,7 @@ export default function HomePage() {
               </div>
 
               {/* Datos Bancarios */}
-              <div className="space-y-3 bg-slate-900/60 p-3.5 rounded-lg border border-slate-800">
+              <div className="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
                 <h3 className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
                   <CreditCard className="h-3.5 w-3.5" /> Datos para Depósito / Transferencia
                 </h3>
@@ -558,18 +615,18 @@ export default function HomePage() {
 
           {/* TAB 2: FORMULARIO DE REMISIÓN */}
           {activeTab === "remision" && (
-            <div className="space-y-6">
-              <div className="border-b border-slate-800 pb-3">
-                <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <Truck className="h-4 w-4 text-emerald-400" />
-                  <span>Configurar Nota de Remisión / Entrega</span>
+            <div className="space-y-5">
+              <div className="border-b border-slate-800 pb-2">
+                <h2 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+                  <Truck className="h-4 w-4" />
+                  <span>2. Configurar Nota de Remisión / Entrega</span>
                 </h2>
-                <p className="text-xs text-slate-400 mt-1">
-                  Ampara la entrega física de bienes y equipos con firmas de conformidad y transporte.
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Constancia de entrega formal de bienes con datos de fletera, operador y recepción de conformidad.
                 </p>
               </div>
 
-              <div className="grid grid-cols-3 gap-2.5 bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+              <div className="grid grid-cols-3 gap-2 bg-slate-900/70 p-3 rounded-lg border border-slate-800">
                 <div>
                   <label className="text-[11px] font-medium text-slate-400 block mb-1">Folio Remisión</label>
                   <input
@@ -599,9 +656,11 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Emisor y Cliente */}
-              <div className="space-y-3 bg-slate-900/60 p-3.5 rounded-lg border border-slate-800">
-                <h3 className="text-xs font-semibold text-emerald-400">Datos de Emisor y Destino</h3>
+              {/* Emisor y Destino */}
+              <div className="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+                <h3 className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
+                  <Building2 className="h-3.5 w-3.5" /> Emisor y Destino de Mercancías
+                </h3>
                 <input
                   type="text"
                   placeholder="Empresa Remitente"
@@ -609,6 +668,22 @@ export default function HomePage() {
                   onChange={(e) => setDelivery({ ...delivery, issuerName: e.target.value })}
                   className="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
                 />
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    placeholder="RFC Emisor"
+                    value={delivery.issuerRfc}
+                    onChange={(e) => setDelivery({ ...delivery, issuerRfc: e.target.value })}
+                    className="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Teléfono Emisor"
+                    value={delivery.issuerPhone}
+                    onChange={(e) => setDelivery({ ...delivery, issuerPhone: e.target.value })}
+                    className="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
+                  />
+                </div>
                 <input
                   type="text"
                   placeholder="Cliente o Empresa Receptora"
@@ -618,65 +693,88 @@ export default function HomePage() {
                 />
                 <input
                   type="text"
-                  placeholder="Dirección de Destino / Entrega"
+                  placeholder="Dirección de Destino / Almacén / Obra"
                   value={delivery.clientAddress}
                   onChange={(e) => setDelivery({ ...delivery, clientAddress: e.target.value })}
+                  className="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
+                />
+                <input
+                  type="text"
+                  placeholder="Contacto en destino (opcional)"
+                  value={delivery.clientContact || ""}
+                  onChange={(e) => setDelivery({ ...delivery, clientContact: e.target.value })}
                   className="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
                 />
               </div>
 
               {/* Logística y Transporte */}
-              <div className="space-y-3 bg-slate-900/60 p-3.5 rounded-lg border border-slate-800">
-                <h3 className="text-xs font-semibold text-emerald-400">Recepción y Transporte</h3>
+              <div className="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+                <h3 className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
+                  <Truck className="h-3.5 w-3.5" /> Datos del Transporte y Recepción
+                </h3>
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="text"
-                    placeholder="Persona que recibe"
-                    value={delivery.receiverName}
-                    onChange={(e) => setDelivery({ ...delivery, receiverName: e.target.value })}
-                    className="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Teléfono contacto receptor"
-                    value={delivery.receiverPhone}
-                    onChange={(e) => setDelivery({ ...delivery, receiverPhone: e.target.value })}
-                    className="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="text"
-                    placeholder="Transportista o Fletero"
+                    placeholder="Fletera / Transportista"
                     value={delivery.carrierName}
                     onChange={(e) => setDelivery({ ...delivery, carrierName: e.target.value })}
                     className="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
                   />
                   <input
                     type="text"
-                    placeholder="Placas o Unidad"
+                    placeholder="Nombre del Operador / Chofer"
+                    value={delivery.driverName}
+                    onChange={(e) => setDelivery({ ...delivery, driverName: e.target.value })}
+                    className="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    placeholder="Placas / Vehículo"
                     value={delivery.carrierPlates}
                     onChange={(e) => setDelivery({ ...delivery, carrierPlates: e.target.value })}
                     className="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
                   />
+                  <input
+                    type="text"
+                    placeholder="Nombre de quien recibe"
+                    value={delivery.receiverName}
+                    onChange={(e) => setDelivery({ ...delivery, receiverName: e.target.value })}
+                    className="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
+                  />
                 </div>
+                <input
+                  type="text"
+                  placeholder="Teléfono de quien recibe"
+                  value={delivery.receiverPhone}
+                  onChange={(e) => setDelivery({ ...delivery, receiverPhone: e.target.value })}
+                  className="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
+                />
+                <input
+                  type="text"
+                  placeholder="Observaciones de entrega / precintos..."
+                  value={delivery.deliveryNotes}
+                  onChange={(e) => setDelivery({ ...delivery, deliveryNotes: e.target.value })}
+                  className="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
+                />
               </div>
 
               {/* Ítems entregados */}
-              <div className="space-y-3 bg-slate-900/60 p-3.5 rounded-lg border border-slate-800">
+              <div className="space-y-3 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs font-semibold text-white">Mercancía o Equipos Entregados</h3>
                   <button
                     type="button"
                     onClick={addDeliveryItem}
-                    className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 font-medium"
+                    className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 font-semibold"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     <span>Agregar Artículo</span>
                   </button>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   {delivery.items.map((item) => (
                     <div key={item.id} className="p-2.5 rounded bg-slate-950 border border-slate-800 space-y-2">
                       <div className="flex gap-2">
@@ -692,7 +790,7 @@ export default function HomePage() {
                               items: delivery.items.map((it) => (it.id === item.id ? { ...it, quantity: val } : it)),
                             });
                           }}
-                          className="w-16 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white text-center"
+                          className="w-16 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white text-center font-bold"
                         />
                         <input
                           type="text"
@@ -705,7 +803,7 @@ export default function HomePage() {
                               items: delivery.items.map((it) => (it.id === item.id ? { ...it, unit: val } : it)),
                             });
                           }}
-                          className="w-24 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white"
+                          className="w-20 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white"
                         />
                         <input
                           type="text"
@@ -718,7 +816,7 @@ export default function HomePage() {
                               items: delivery.items.map((it) => (it.id === item.id ? { ...it, code: val } : it)),
                             });
                           }}
-                          className="w-32 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white"
+                          className="w-28 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white"
                         />
                         <button
                           type="button"
@@ -770,32 +868,32 @@ export default function HomePage() {
 
           {/* TAB 3: FORMULARIO DE CONTRATO */}
           {activeTab === "contrato" && (
-            <div className="space-y-6">
-              <div className="border-b border-slate-800 pb-3">
-                <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <Scale className="h-4 w-4 text-emerald-400" />
-                  <span>Configurar Contrato Legal</span>
+            <div className="space-y-5">
+              <div className="border-b border-slate-800 pb-2">
+                <h2 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+                  <Scale className="h-4 w-4" />
+                  <span>3. Configurar Contrato Legal</span>
                 </h2>
-                <p className="text-xs text-slate-400 mt-1">
-                  Plantillas civiles y mercantiles con cláusulas modulares con validez en México.
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Plantillas civiles y mercantiles con declaraciones formales y cláusulas modulares editables.
                 </p>
               </div>
 
               {/* Selector de Tipo de Contrato */}
-              <div className="bg-slate-900 p-2 rounded-lg border border-slate-800 flex flex-wrap gap-1">
+              <div className="bg-slate-900 p-2 rounded-lg border border-slate-800 grid grid-cols-2 gap-1.5 text-xs">
                 {(
                   [
-                    ["servicios", "Servicios Profesionales"],
-                    ["arrendamiento", "Arrendamiento"],
+                    ["servicios", "Prestación de Servicios"],
+                    ["arrendamiento", "Arrendamiento Inmueble"],
                     ["nda", "Confidencialidad (NDA)"],
-                    ["compraventa", "Compraventa"],
+                    ["compraventa", "Compraventa de Muebles"],
                   ] as const
                 ).map(([key, label]) => (
                   <button
                     key={key}
                     type="button"
                     onClick={() => handleContractTypeChange(key)}
-                    className={`flex-1 min-w-[130px] px-2.5 py-1.5 rounded text-xs font-medium transition-colors ${
+                    className={`py-1.5 px-2 rounded text-xs font-semibold transition-colors ${
                       contractType === key
                         ? "bg-emerald-500 text-slate-950 font-bold"
                         : "text-slate-300 hover:bg-slate-800"
@@ -807,7 +905,7 @@ export default function HomePage() {
               </div>
 
               {/* Título y Ciudad/Fecha */}
-              <div className="space-y-3 bg-slate-900/60 p-3.5 rounded-lg border border-slate-800">
+              <div className="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
                 <label className="text-[11px] font-medium text-slate-400 block">Título del Contrato</label>
                 <input
                   type="text"
@@ -825,10 +923,16 @@ export default function HomePage() {
               </div>
 
               {/* Parte A */}
-              <div className="space-y-3 bg-slate-900/60 p-3.5 rounded-lg border border-slate-800">
-                <h3 className="text-xs font-semibold text-emerald-400">
-                  Parte A ({contract.partyARole})
-                </h3>
+              <div className="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xs font-semibold text-emerald-400">Parte A</h3>
+                  <input
+                    type="text"
+                    value={contract.partyARole}
+                    onChange={(e) => setContract({ ...contract, partyARole: e.target.value })}
+                    className="w-36 text-right bg-transparent text-xs text-emerald-400 font-bold border-b border-slate-700 focus:outline-none"
+                  />
+                </div>
                 <input
                   type="text"
                   placeholder="Nombre de la Persona o Razón Social"
@@ -862,10 +966,16 @@ export default function HomePage() {
               </div>
 
               {/* Parte B */}
-              <div className="space-y-3 bg-slate-900/60 p-3.5 rounded-lg border border-slate-800">
-                <h3 className="text-xs font-semibold text-emerald-400">
-                  Parte B ({contract.partyBRole})
-                </h3>
+              <div className="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xs font-semibold text-emerald-400">Parte B</h3>
+                  <input
+                    type="text"
+                    value={contract.partyBRole}
+                    onChange={(e) => setContract({ ...contract, partyBRole: e.target.value })}
+                    className="w-36 text-right bg-transparent text-xs text-emerald-400 font-bold border-b border-slate-700 focus:outline-none"
+                  />
+                </div>
                 <input
                   type="text"
                   placeholder="Nombre de la Persona o Razón Social"
@@ -898,20 +1008,76 @@ export default function HomePage() {
                 />
               </div>
 
+              {/* Declaraciones Legales */}
+              <div className="space-y-3 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-semibold text-white">Declaraciones Previas</h3>
+                  <button
+                    type="button"
+                    onClick={addContractDeclaration}
+                    className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 font-semibold"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    <span>Agregar Declaración</span>
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {contract.declarations?.map((dec) => (
+                    <div key={dec.id} className="p-2.5 rounded bg-slate-950 border border-slate-800 text-xs space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <input
+                          type="text"
+                          value={dec.title}
+                          onChange={(e) =>
+                            setContract({
+                              ...contract,
+                              declarations: contract.declarations.map((d) =>
+                                d.id === dec.id ? { ...d, title: e.target.value } : d
+                              ),
+                            })
+                          }
+                          className="font-bold text-slate-200 bg-transparent border-b border-transparent focus:border-emerald-500 w-full"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => deleteContractDeclaration(dec.id)}
+                          className="text-slate-500 hover:text-rose-400 ml-2"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                      <textarea
+                        rows={3}
+                        value={dec.content}
+                        onChange={(e) =>
+                          setContract({
+                            ...contract,
+                            declarations: contract.declarations.map((d) =>
+                              d.id === dec.id ? { ...d, content: e.target.value } : d
+                            ),
+                          })
+                        }
+                        className="w-full rounded border border-slate-800 bg-slate-900 p-2 text-slate-300 leading-relaxed"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {/* Montos y Plazos */}
-              <div className="space-y-3 bg-slate-900/60 p-3.5 rounded-lg border border-slate-800">
-                <h3 className="text-xs font-semibold text-white">Monto y Vigencia</h3>
+              <div className="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+                <h3 className="text-xs font-semibold text-white">Contraprestación y Vigencia</h3>
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="number"
-                    placeholder="Monto / Contraprestación"
+                    placeholder="Monto"
                     value={contract.amount}
                     onChange={(e) => setContract({ ...contract, amount: parseFloat(e.target.value) || 0 })}
                     className="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
                   />
                   <input
                     type="text"
-                    placeholder="Moneda (ej. MXN)"
+                    placeholder="Moneda"
                     value={contract.currency}
                     onChange={(e) => setContract({ ...contract, currency: e.target.value })}
                     className="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
@@ -924,6 +1090,13 @@ export default function HomePage() {
                   onChange={(e) => setContract({ ...contract, paymentTerms: e.target.value })}
                   className="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
                 />
+                <input
+                  type="text"
+                  placeholder="Plazo de vigencia..."
+                  value={contract.duration}
+                  onChange={(e) => setContract({ ...contract, duration: e.target.value })}
+                  className="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
+                />
               </div>
 
               {/* Cláusulas Modulares */}
@@ -934,8 +1107,8 @@ export default function HomePage() {
               />
 
               {/* Testigos */}
-              <div className="space-y-3 bg-slate-900/60 p-3.5 rounded-lg border border-slate-800">
-                <h3 className="text-xs font-semibold text-slate-300">Testigos (Opcional)</h3>
+              <div className="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+                <h3 className="text-xs font-semibold text-slate-300">Testigos del Instrumento</h3>
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="text"
@@ -946,9 +1119,25 @@ export default function HomePage() {
                   />
                   <input
                     type="text"
+                    placeholder="INE / Identificación Testigo 1"
+                    value={contract.witness1Id}
+                    onChange={(e) => setContract({ ...contract, witness1Id: e.target.value })}
+                    className="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
                     placeholder="Nombre Testigo 2"
                     value={contract.witness2Name}
                     onChange={(e) => setContract({ ...contract, witness2Name: e.target.value })}
+                    className="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
+                  />
+                  <input
+                    type="text"
+                    placeholder="INE / Identificación Testigo 2"
+                    value={contract.witness2Id}
+                    onChange={(e) => setContract({ ...contract, witness2Id: e.target.value })}
                     className="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
                   />
                 </div>
@@ -958,24 +1147,24 @@ export default function HomePage() {
 
           {/* TAB 4: FORMULARIO DE CARTA PODER */}
           {activeTab === "cartapoder" && (
-            <div className="space-y-6">
-              <div className="border-b border-slate-800 pb-3">
-                <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <Scroll className="h-4 w-4 text-emerald-400" />
-                  <span>Configurar Carta Poder Privada</span>
+            <div className="space-y-5">
+              <div className="border-b border-slate-800 pb-2">
+                <h2 className="text-sm font-bold text-white uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+                  <Scroll className="h-4 w-4" />
+                  <span>4. Configurar Carta Poder Privada</span>
                 </h2>
-                <p className="text-xs text-slate-400 mt-1">
-                  Otorga mandato para trámites vehiculares, gestiones públicas o cobros con formato legal de 4 firmas.
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Mandato legal para trámites vehiculares, gestiones públicas o cobros con formato legal de 4 firmas.
                 </p>
               </div>
 
               {/* Selector de Subtipo */}
-              <div className="bg-slate-900 p-2 rounded-lg border border-slate-800 flex flex-wrap gap-1">
+              <div className="bg-slate-900 p-2 rounded-lg border border-slate-800 grid grid-cols-2 gap-1.5 text-xs">
                 {(
                   [
                     ["general", "Trámites Generales"],
                     ["vehicular", "Trámite Vehicular (SEMOVI)"],
-                    ["tramites", "Servicios (CFE/SACMEX)"],
+                    ["tramites", "Servicios (CFE / SACMEX)"],
                     ["cobro", "Cobro de Cheques / Finiquito"],
                   ] as const
                 ).map(([key, label]) => (
@@ -983,7 +1172,7 @@ export default function HomePage() {
                     key={key}
                     type="button"
                     onClick={() => handlePowerSubtypeChange(key)}
-                    className={`flex-1 min-w-[130px] px-2.5 py-1.5 rounded text-xs font-medium transition-colors ${
+                    className={`py-1.5 px-2 rounded text-xs font-semibold transition-colors ${
                       powerSubtype === key
                         ? "bg-emerald-500 text-slate-950 font-bold"
                         : "text-slate-300 hover:bg-slate-800"
@@ -994,7 +1183,8 @@ export default function HomePage() {
                 ))}
               </div>
 
-              <div className="space-y-3 bg-slate-900/60 p-3.5 rounded-lg border border-slate-800">
+              {/* Fechas y Autoridad */}
+              <div className="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="text-[11px] font-medium text-slate-400 block mb-1">Lugar y Fecha</label>
@@ -1015,10 +1205,24 @@ export default function HomePage() {
                     />
                   </div>
                 </div>
+                <label className="text-[11px] font-medium text-slate-400 block">Destinatario / Autoridad</label>
+                <input
+                  type="text"
+                  value={power.authorityTarget}
+                  onChange={(e) => setPower({ ...power, authorityTarget: e.target.value })}
+                  className="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
+                />
+                <label className="text-[11px] font-medium text-slate-400 block">Fundamento Legal</label>
+                <input
+                  type="text"
+                  value={power.legalBasis}
+                  onChange={(e) => setPower({ ...power, legalBasis: e.target.value })}
+                  className="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
+                />
               </div>
 
               {/* Otorgante */}
-              <div className="space-y-3 bg-slate-900/60 p-3.5 rounded-lg border border-slate-800">
+              <div className="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
                 <h3 className="text-xs font-semibold text-emerald-400">
                   Otorgante (Poderdante - Quien da el poder)
                 </h3>
@@ -1039,9 +1243,9 @@ export default function HomePage() {
                   />
                   <input
                     type="text"
-                    placeholder="Teléfono"
-                    value={power.grantorPhone}
-                    onChange={(e) => setPower({ ...power, grantorPhone: e.target.value })}
+                    placeholder="INE / Identificación oficial"
+                    value={power.grantorId}
+                    onChange={(e) => setPower({ ...power, grantorId: e.target.value })}
                     className="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
                   />
                 </div>
@@ -1055,7 +1259,7 @@ export default function HomePage() {
               </div>
 
               {/* Apoderado */}
-              <div className="space-y-3 bg-slate-900/60 p-3.5 rounded-lg border border-slate-800">
+              <div className="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
                 <h3 className="text-xs font-semibold text-emerald-400">
                   Aceptante (Apoderado - Quien recibe el poder)
                 </h3>
@@ -1076,9 +1280,9 @@ export default function HomePage() {
                   />
                   <input
                     type="text"
-                    placeholder="Teléfono"
-                    value={power.attorneyPhone}
-                    onChange={(e) => setPower({ ...power, attorneyPhone: e.target.value })}
+                    placeholder="INE / Identificación oficial"
+                    value={power.attorneyId}
+                    onChange={(e) => setPower({ ...power, attorneyId: e.target.value })}
                     className="rounded border border-slate-700 bg-slate-950 px-2.5 py-1.5 text-xs text-white"
                   />
                 </div>
@@ -1092,10 +1296,10 @@ export default function HomePage() {
               </div>
 
               {/* Descripción de Facultades */}
-              <div className="space-y-3 bg-slate-900/60 p-3.5 rounded-lg border border-slate-800">
-                <h3 className="text-xs font-semibold text-white">Facultades Conferidas</h3>
+              <div className="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
+                <h3 className="text-xs font-semibold text-white">Facultades Conferidas (Redacción Legal Amplia)</h3>
                 <textarea
-                  rows={4}
+                  rows={5}
                   placeholder="Detalla con precisión qué trámites o facultades se otorgan..."
                   value={power.powersDescription}
                   onChange={(e) => setPower({ ...power, powersDescription: e.target.value })}
@@ -1111,7 +1315,7 @@ export default function HomePage() {
               />
 
               {/* Testigos */}
-              <div className="space-y-3 bg-slate-900/60 p-3.5 rounded-lg border border-slate-800">
+              <div className="space-y-2.5 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
                 <h3 className="text-xs font-semibold text-slate-300">Testigos de la Carta Poder</h3>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
@@ -1125,8 +1329,8 @@ export default function HomePage() {
                     <input
                       type="text"
                       placeholder="CURP / INE Testigo 1"
-                      value={power.witness1Curp}
-                      onChange={(e) => setPower({ ...power, witness1Curp: e.target.value })}
+                      value={power.witness1Id}
+                      onChange={(e) => setPower({ ...power, witness1Id: e.target.value })}
                       className="w-full rounded border border-slate-800 bg-slate-950 px-2 py-1 text-xs text-slate-400"
                     />
                   </div>
@@ -1141,8 +1345,8 @@ export default function HomePage() {
                     <input
                       type="text"
                       placeholder="CURP / INE Testigo 2"
-                      value={power.witness2Curp}
-                      onChange={(e) => setPower({ ...power, witness2Curp: e.target.value })}
+                      value={power.witness2Id}
+                      onChange={(e) => setPower({ ...power, witness2Id: e.target.value })}
                       className="w-full rounded border border-slate-800 bg-slate-950 px-2 py-1 text-xs text-slate-400"
                     />
                   </div>

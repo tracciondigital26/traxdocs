@@ -2,25 +2,25 @@ import { QuotationData, DeliveryData, ContractData, PowerOfAttorneyData, Contrac
 
 export const defaultQuotation: QuotationData = {
   folio: "COT-2026-0042",
-  date: new Date().toISOString().split('T')[0],
-  validUntil: new Date(Date.now() + 15 * 86400000).toISOString().split('T')[0],
+  date: "2026-11-13",
+  validUntil: "2026-11-28",
   currency: "MXN",
   issuerName: "Tracción Digital S.A.S. de C.V.",
   issuerRfc: "TDI240101XYZ",
   issuerEmail: "contacto@tracciondigital.com.mx",
   issuerPhone: "+52 55 1234 5678",
-  issuerAddress: "Av. Insurgentes Sur 1602, Crédito Constructor, Benito Juárez, CDMX",
+  issuerAddress: "Av. Insurgentes Sur 1602, Benito Juárez, CDMX",
   bankName: "BBVA México",
   bankClabe: "012180001234567890",
-  bankBeneficiary: "Tracción Digital",
-  clientName: "Corporativo InnovaTech México",
+  bankBeneficiary: "Tracción Digital S.A.S. de C.V.",
+  clientName: "Corporativo InnovaTech México S.A. de C.V.",
   clientRfc: "CIM220515ABC",
   clientEmail: "administracion@innovatech.mx",
   clientPhone: "+52 55 9876 5432",
   clientAddress: "Paseo de la Reforma 250, Juárez, Cuauhtémoc, CDMX",
   taxRate: 16,
   discount: 0,
-  notes: "Precios expresados en moneda nacional antes de impuestos. El presente presupuesto se emite conforme a los requerimientos técnicos presentados por el cliente.",
+  notes: "Precios en moneda nacional antes de impuestos. El presente presupuesto se emite conforme a los requerimientos técnicos presentados.",
   items: [
     {
       id: "item-1",
@@ -80,32 +80,35 @@ export const defaultQuotation: QuotationData = {
 
 export const defaultDelivery: DeliveryData = {
   folio: "REM-2026-018",
-  date: new Date().toISOString().split('T')[0],
+  date: "2026-11-13",
   orderNumber: "OC-2026-894",
   issuerName: "Tracción Digital / Logística y Suministros",
   issuerRfc: "TDI240101XYZ",
   issuerPhone: "+52 55 1234 5678",
+  issuerAddress: "Av. Insurgentes Sur 1602, Benito Juárez, CDMX",
   clientName: "Grupo Comercial del Centro S.A. de C.V.",
   clientRfc: "GCC180320KL1",
   clientAddress: "Parque Industrial Vallejo, Bodega 4-B, Azcapotzalco, CDMX",
+  clientContact: "Ing. Roberto Alarcón (Almacén Central)",
   receiverName: "Lic. Carlos Mendoza Ramos",
   receiverPhone: "+52 55 4433 2211",
-  carrierName: "Mensajería Directa Express - Conductor: Jorge Luis Pérez",
-  carrierPlates: "Placas: 48-AK-9Z",
-  deliveryNotes: "Se entrega material en cajas selladas y etiquetadas. Verificado en presencia del encargado de almacén.",
+  carrierName: "Mensajería Directa Express S.A.",
+  driverName: "Jorge Luis Pérez Mendoza",
+  carrierPlates: "Camioneta Nissan NP300 - Placas: 48-AK-9Z",
+  deliveryNotes: "Material entregado en cajas cerradas y precintadas de fábrica. Inspeccionado visualmente en presencia del personal de almacén.",
   items: [
     {
       id: "d-1",
       quantity: 5,
-      unit: "Equipo",
+      unit: "Equipos",
       code: "SRV-TD-01",
       description: "Servidores Rack 1U Intel Xeon 32GB RAM / 1TB SSD NVMe",
-      condition: "Nuevo / En empaque original de fábrica"
+      condition: "Nuevo / En empaque original de fábrica con precintos intactos"
     },
     {
       id: "d-2",
       quantity: 10,
-      unit: "Pieza",
+      unit: "Piezas",
       code: "RTR-CIS-29",
       description: "Routers de Comunicación Gigabit Administrables con Licencia",
       condition: "Nuevo / Verificado funcional"
@@ -167,9 +170,29 @@ export const defaultContracts: Record<ContractType, ContractData> = {
     paymentTerms: "50% de anticipo a la firma y 50% al término y aceptación de entregables",
     duration: "60 días naturales a partir de la firma",
     witness1Name: "Lic. Roberto Garza Treviño",
-    witness1Address: "CDMX, Identificación INE: 0839217823901",
+    witness1Id: "INE: 0839217823901",
     witness2Name: "Lic. Mariana Cruz Ochoa",
-    witness2Address: "CDMX, Identificación INE: 9482103948201",
+    witness2Id: "INE: 9482103948201",
+    declarations: [
+      {
+        id: "cd-1",
+        title: "I. DECLARA EL PRESTADOR:",
+        content: "Ser una sociedad mercantil legalmente constituida conforme a las leyes de los Estados Unidos Mexicanos, con facultades bastantes y suficientes para la celebración del presente contrato, contando con el personal calificado, la experiencia, capacidad técnica y recursos indispensables para prestar los servicios objeto de este instrumento.",
+        isEnabled: true
+      },
+      {
+        id: "cd-2",
+        title: "II. DECLARA EL CLIENTE:",
+        content: "Ser una persona moral debidamente organizada y existente con arreglo a la legislación mexicana, con plena personalidad y capacidad jurídica para obligarse conforme a este instrumento, requiriendo los servicios profesionales de EL PRESTADOR y contando con los fondos y solvencia económica suficientes para sufragar los honorarios convenidos.",
+        isEnabled: true
+      },
+      {
+        id: "cd-3",
+        title: "III. DECLARAN AMBAS PARTES:",
+        content: "Que se reconocen recíprocamente la personalidad y legitimación jurídica con la que comparecen, manifestando bajo protesta de decir verdad que en la celebración de este contrato no media dolo, error, violencia, mala fe ni lesión, obligándose al tenor de las siguientes:",
+        isEnabled: true
+      }
+    ],
     clauses: [
       {
         id: "cs-1",
@@ -179,8 +202,8 @@ export const defaultContracts: Record<ContractType, ContractData> = {
       },
       {
         id: "cs-2",
-        title: "SEGUNDA. CONTRAPRESTACIÓN Y CONDICIONES DE PAGO",
-        content: "Como contraprestación total por los servicios contratados, EL CLIENTE se compromete a pagar a EL PRESTADOR la cantidad acordada más el Impuesto al Valor Agregado (IVA). Los pagos se realizarán mediante transferencia bancaria a la cuenta designada por EL PRESTADOR.",
+        title: "SEGUNDA. CONTRAPRESTACIÓN Y CFDI",
+        content: "Como contraprestación total por los servicios contratados, EL CLIENTE se compromete a pagar a EL PRESTADOR la cantidad acordada más el Impuesto al Valor Agregado (IVA). EL PRESTADOR expedirá las facturas electrónicas (CFDI) que cumplan estrictamente con las disposiciones fiscales emitidas por el SAT.",
         isEnabled: true
       },
       {
@@ -240,9 +263,23 @@ export const defaultContracts: Record<ContractType, ContractData> = {
     paymentTerms: "Mensualidad anticipada dentro de los primeros 5 días naturales de cada mes",
     duration: "12 meses forzosos para ambas partes",
     witness1Name: "C. Javier Estrada Luna",
-    witness1Address: "CDMX, INE 1029384756",
+    witness1Id: "INE: 1029384756",
     witness2Name: "C. Andrea Pineda Ríos",
-    witness2Address: "CDMX, INE 5647382910",
+    witness2Id: "INE: 5647382910",
+    declarations: [
+      {
+        id: "da-1",
+        title: "I. DECLARA EL ARRENDADOR:",
+        content: "Ser legítimo propietario con capacidad jurídica plena sobre el inmueble objeto de este contrato, encontrándose al corriente en el pago de contribuciones prediales y de servicios correspondientes.",
+        isEnabled: true
+      },
+      {
+        id: "da-2",
+        title: "II. DECLARA EL ARRENDATARIO:",
+        content: "Que cuenta con la capacidad jurídica y solvencia económica comprobable para contratar, habiendo inspeccionado previamente el inmueble y reconociendo que reúne las condiciones higiénicas y de salubridad necesarias.",
+        isEnabled: true
+      }
+    ],
     clauses: [
       {
         id: "ca-1",
@@ -276,14 +313,8 @@ export const defaultContracts: Record<ContractType, ContractData> = {
       },
       {
         id: "ca-6",
-        title: "SEXTA. CONSERVACIÓN Y MEJORAS",
-        content: "No se podrán efectuar modificaciones estructurales ni perforaciones indebidas en el inmueble sin autorización por escrito de EL ARRENDADOR. Cualquier mejora autorizada que no pueda retirarse sin detrimento del bien quedará en beneficio del inmueble.",
-        isEnabled: true
-      },
-      {
-        id: "ca-7",
-        title: "SÉPTIMA. JURISDICCIÓN",
-        content: "Las partes se someten a la competencia de los Juzgados Civiles de la Ciudad de México para resolver cualquier controversia derivada del presente contrato de arrendamiento.",
+        title: "SEXTA. JURISDICCIÓN Y COMPETENCIA",
+        content: "Las partes se someten expresamente a la competencia de los Juzgados Civiles de la Ciudad de México para resolver cualquier controversia derivada del presente contrato de arrendamiento.",
         isEnabled: true
       }
     ]
@@ -295,7 +326,7 @@ export const defaultContracts: Record<ContractType, ContractData> = {
     partyARole: "PARTE DIVULGANTE",
     partyAName: "Tracción Digital / Proyectos Tecnológicos",
     partyARfc: "TDI240101XYZ",
-    partyAAddress: "Av. Insurgentes Sur 1602, CDMX",
+    partyAAddress: "Av. Insurgentes Sur 1602, Benito Juárez, CDMX",
     partyARepresentative: "Director General",
     partyBRole: "PARTE RECEPTORA",
     partyBName: "Desarrollos y Alianzas Estratégicas S.A.P.I. de C.V.",
@@ -304,17 +335,25 @@ export const defaultContracts: Record<ContractType, ContractData> = {
     partyBRepresentative: "Representante Legal",
     amount: 0,
     currency: "MXN",
-    paymentTerms: "Sin contraprestación económica directa / Deber fiduciario de confidencialidad",
+    paymentTerms: "Sin contraprestación económica directa / Deber fiduciario de secreto industrial",
     duration: "3 años a partir de la firma del presente instrumento",
     witness1Name: "Lic. Gabriel Domínguez Paz",
-    witness1Address: "CDMX, INE 7722883399",
+    witness1Id: "INE: 7722883399",
     witness2Name: "Lic. Claudia Serrano Ruiz",
-    witness2Address: "CDMX, INE 1144778855",
+    witness2Id: "INE: 1144778855",
+    declarations: [
+      {
+        id: "dnda-1",
+        title: "I. DECLARAN AMBAS PARTES:",
+        content: "Que con motivo de explorar y ejecutar proyectos comerciales y de tecnología conjuntos, resulta imprescindible intercambiar información de carácter estrictamente confidencial y reservada.",
+        isEnabled: true
+      }
+    ],
     clauses: [
       {
         id: "cnda-1",
         title: "PRIMERA. DEFINICIÓN DE INFORMACIÓN CONFIDENCIAL",
-        content: "Se considera información confidencial todo dato técnico, comercial, código fuente, algoritmos, arquitectura de software, planes de negocio, lista de clientes y estrategias transmitidas verbalmente, por escrito o en medios electrónicos entre las partes.",
+        content: "Se considera información confidencial todo dato técnico, comercial, código fuente, algoritmos, arquitectura de software, planes de negocio, listas de clientes y estrategias transmitidas verbalmente, por escrito o en medios electrónicos entre las partes.",
         isEnabled: true
       },
       {
@@ -332,7 +371,7 @@ export const defaultContracts: Record<ContractType, ContractData> = {
       {
         id: "cnda-4",
         title: "CUARTA. PENALIDAD POR INCUMPLIMIENTO",
-        content: "En caso de quebranto o revelación no autorizada de la información confidencial, la parte responsable responderá por los daños y perjuicios directos e indirectos causados, además de las acciones civiles y penales a que haya lugar conforme al Código Penal Federal y la Ley Federal de Protección a la Propiedad Industrial.",
+        content: "En caso de quebranto o revelación no autorizada de la información confidencial, la parte responsable responderá por los daños y perjuicios directos e indirectos causados, además de las acciones civiles y penales correspondientes.",
         isEnabled: true
       }
     ]
@@ -356,9 +395,17 @@ export const defaultContracts: Record<ContractType, ContractData> = {
     paymentTerms: "Pago en una sola exhibición contra entrega física del bien y su documentación",
     duration: "De ejecución instantánea con garantía por vicios ocultos de 60 días",
     witness1Name: "C. Enrique Roldán Vera",
-    witness1Address: "CDMX, INE 9988776655",
+    witness1Id: "INE: 9988776655",
     witness2Name: "C. Mónica Alarcón Gil",
-    witness2Address: "CDMX, INE 4433221100",
+    witness2Id: "INE: 4433221100",
+    declarations: [
+      {
+        id: "dcv-1",
+        title: "I. DECLARA EL VENDEDOR:",
+        content: "Ser legítimo y único propietario del bien mueble objeto del contrato, el cual adquirió de manera lícita, encontrándose libre de gravámenes, embargos o limitaciones de dominio.",
+        isEnabled: true
+      }
+    ],
     clauses: [
       {
         id: "ccv-1",
@@ -375,13 +422,7 @@ export const defaultContracts: Record<ContractType, ContractData> = {
       {
         id: "ccv-3",
         title: "TERCERA. LIBERTAD DE GRAVÁMENES Y SANEAMIENTO",
-        content: "EL VENDEDOR manifiesta bajo protesta de decir verdad que es legítimo propietario del bien objeto del contrato, el cual se encuentra completamente libre de gravámenes, embargos o limitaciones de dominio, obligándose al saneamiento para el caso de evicción.",
-        isEnabled: true
-      },
-      {
-        id: "ccv-4",
-        title: "CUARTA. ENTREGA FÍSICA Y REVISIÓN",
-        content: "EL COMPRADOR inspecciona el bien a su entera satisfacción, recibiendo junto con él los manuales, cables, accesorios y comprobantes fiscales originales que amparan su legítima procedencia.",
+        content: "EL VENDEDOR manifiesta bajo protesta de decir verdad que es legítimo propietario del bien objeto del contrato, obligándose expresamente al saneamiento para el caso de evicción conforme al Código Civil.",
         isEnabled: true
       }
     ]
@@ -392,20 +433,24 @@ export const defaultPowerOfAttorney: Record<PowerSubtype, PowerOfAttorneyData> =
   general: {
     subtype: "general",
     cityAndDate: "Ciudad de México, a 13 de Noviembre de 2026",
+    validityUntil: "31 de Diciembre de 2026",
+    authorityTarget: "A QUIEN CORRESPONDA / AUTORIDADES ADMINISTRATIVAS Y JUDICIALES COMPETENTES:",
+    legalBasis: "Con fundamento en los artículos 2546, 2551 fracción III, 2554 y relativos del Código Civil Federal y sus correlativos en las entidades federativas:",
     grantorName: "C. Gerardo Montes de Oca Lozano",
     grantorCurpOrRfc: "MOLG780914HDFZNR03",
+    grantorId: "INE: 0394819284710",
     grantorAddress: "Calle Amores #830, Col. Del Valle Norte, Benito Juárez, CDMX",
     grantorPhone: "+52 55 5566 7788",
     attorneyName: "Lic. Patricia Zambrano Fuentes",
     attorneyCurpOrRfc: "ZAFP860405MDFMNR09",
+    attorneyId: "INE: 9182736450192",
     attorneyAddress: "Av. Cuauhtémoc #450, Col. Narvarte Poniente, Benito Juárez, CDMX",
     attorneyPhone: "+52 55 9988 7766",
-    validityUntil: "31 de Diciembre de 2026",
-    powersDescription: "Realizar ante toda clase de autoridades administrativas, federales, estatales o municipales, así como ante personas morales o instituciones públicas y privadas, toda clase de gestiones, solicitudes, entrega y recepción de documentos, notificaciones y firmas que correspondan al interés del otorgante.",
+    powersDescription: "Para que en mi nombre y representación comparezca ante toda clase de autoridades administrativas, federales, estatales o municipales, así como ante personas físicas, personas morales e instituciones bancarias o de crédito; con facultades expresas para promover solicitudes, exhibir y cotejar documentos originales, oír y recibir notificaciones, formular acuerdos, pagar derechos o contribuciones y firmar todos los formatos, actas y promociones que resulten indispensables para el debido desahogo de las gestiones encomendadas.",
     witness1Name: "C. Daniel Aguilar Ponce",
-    witness1Curp: "AUPD820101HDFXX01",
+    witness1Id: "CURP: AUPD820101HDFXX01",
     witness2Name: "C. Lorena Cisneros Téllez",
-    witness2Curp: "CITL891212MDFXX02",
+    witness2Id: "CURP: CITL891212MDFXX02",
     clauses: [
       {
         id: "cp-1",
@@ -430,20 +475,24 @@ export const defaultPowerOfAttorney: Record<PowerSubtype, PowerOfAttorneyData> =
   vehicular: {
     subtype: "vehicular",
     cityAndDate: "Ciudad de México, a 13 de Noviembre de 2026",
+    validityUntil: "30 días naturales a partir de su emisión",
+    authorityTarget: "A LA SECRETARÍA DE MOVILIDAD (SEMOVI), SECRETARÍA DE FINANZAS Y MÓDULOS DE CONTROL VEHICULAR:",
+    legalBasis: "Con fundamento en los artículos 2546, 2551 y 2554 del Código Civil y los reglamentos de tránsito y control vehicular vigentes:",
     grantorName: "C. Mauricio Soler Galindo",
     grantorCurpOrRfc: "SOGM840618HDFLLR05",
+    grantorId: "INE: 4829103948123",
     grantorAddress: "Av. Patriotismo #220, San Pedro de los Pinos, Benito Juárez, CDMX",
     grantorPhone: "+52 55 3322 1100",
     attorneyName: "C. Armando Téllez Corona",
     attorneyCurpOrRfc: "TECA900315HDFMNR01",
+    attorneyId: "INE: 7483920194857",
     attorneyAddress: "Calle Río Tiber #65, Cuauhtémoc, CDMX",
     attorneyPhone: "+52 55 6677 8899",
-    validityUntil: "30 días naturales a partir de su emisión",
-    powersDescription: "Realizar todos los trámites vehiculares pertinentes ante la Secretaría de Movilidad (SEMOVI), Secretaría de Finanzas y Módulos de Control Vehicular correspondientes al vehículo marca Volkswagen Jetta, Modelo 2022, Color Blanco, Placas de Circulación 892-ABC, Número de Serie / VIN: 3VW2K7AJ8NM123456; incluyendo alta o baja de placas, cambio de propietario, reposición de tarjeta de circulación y verificación vehicular.",
+    powersDescription: "Realizar todos los trámites vehiculares pertinentes ante la Secretaría de Movilidad (SEMOVI), Secretaría de Finanzas y Módulos de Control Vehicular correspondientes al vehículo marca Volkswagen Jetta, Modelo 2022, Color Blanco, Placas de Circulación 892-ABC, Número de Serie / VIN: 3VW2K7AJ8NM123456; incluyendo alta o baja de placas, cambio de propietario, reposición de tarjeta de circulación y verificación vehicular, autorizándolo a recoger placas, engomados y comprobantes originales.",
     witness1Name: "C. Jorge Almonte Vega",
-    witness1Curp: "AOVJ810505HDFXX03",
+    witness1Id: "CURP: AOVJ810505HDFXX03",
     witness2Name: "C. Brenda Romo Castro",
-    witness2Curp: "ROCB870808MDFXX04",
+    witness2Id: "CURP: ROCB870808MDFXX04",
     clauses: [
       {
         id: "cpv-1",
@@ -462,20 +511,24 @@ export const defaultPowerOfAttorney: Record<PowerSubtype, PowerOfAttorneyData> =
   tramites: {
     subtype: "tramites",
     cityAndDate: "Ciudad de México, a 13 de Noviembre de 2026",
+    validityUntil: "15 de Diciembre de 2026",
+    authorityTarget: "A LA COMISIÓN FEDERAL DE ELECTRICIDAD (CFE), SISTEMA DE AGUAS (SACMEX) Y PROVEEDORES DE TELECOMUNICACIONES:",
+    legalBasis: "Con fundamento en los artículos 2546 y concordantes del Código Civil:",
     grantorName: "C. Lucía Paredes Santillán",
     grantorCurpOrRfc: "PASL730225MDFRRN02",
+    grantorId: "INE: 5948392019485",
     grantorAddress: "Calle Colima #180, Roma Norte, Cuauhtémoc, CDMX",
     grantorPhone: "+52 55 7788 9900",
     attorneyName: "C. Samuel Rentería Morales",
     attorneyCurpOrRfc: "REMS880719HDFNRL07",
+    attorneyId: "INE: 1849204958372",
     attorneyAddress: "Calle Eugenia #910, Del Valle Centro, Benito Juárez, CDMX",
     attorneyPhone: "+52 55 1122 3344",
-    validityUntil: "15 de Diciembre de 2026",
     powersDescription: "Gestionar y dar seguimiento a trámites de cambio de titularidad de servicios públicos y domiciliarios ante la Comisión Federal de Electricidad (CFE), Sistema de Aguas de la Ciudad de México (SACMEX), compañías de telecomunicaciones (telefonía e internet) y oficinas de catastro municipal respecto al predio ubicado en Calle Colima #180.",
     witness1Name: "C. Miguel Ángel Becerra",
-    witness1Curp: "BEMM850404HDFXX05",
+    witness1Id: "CURP: BEMM850404HDFXX05",
     witness2Name: "C. Diana Salgado Bravo",
-    witness2Curp: "SABD900606MDFXX06",
+    witness2Id: "CURP: SABD900606MDFXX06",
     clauses: [
       {
         id: "cpt-1",
@@ -488,20 +541,24 @@ export const defaultPowerOfAttorney: Record<PowerSubtype, PowerOfAttorneyData> =
   cobro: {
     subtype: "cobro",
     cityAndDate: "Ciudad de México, a 13 de Noviembre de 2026",
+    validityUntil: "30 de Noviembre de 2026",
+    authorityTarget: "A LA INSTITUCIÓN BANCARIA, CAJA GENERAL O EMPRESA EMISORA:",
+    legalBasis: "Con fundamento en los artículos 2546, 2554 y concordantes del Código Civil:",
     grantorName: "C. Manuel Arredondo Esquivel",
     grantorCurpOrRfc: "AAEM690510HDFRLS08",
+    grantorId: "INE: 4958392019482",
     grantorAddress: "Av. Universidad #1200, Xoco, Benito Juárez, CDMX",
     grantorPhone: "+52 55 4455 6677",
     attorneyName: "C. Esteban Bravo Cárdenas",
     attorneyCurpOrRfc: "BACE920830HDFRRN04",
+    attorneyId: "INE: 3948201948572",
     attorneyAddress: "Calle Gabriel Mancera #315, Del Valle Norte, CDMX",
     attorneyPhone: "+52 55 8899 0011",
-    validityUntil: "30 de Noviembre de 2026",
     powersDescription: "Cobrar y recibir en ventanilla o caja general la cantidad amparada por el cheque no negociable o comprobante de finiquito emitido por la persona moral o física correspondiente, firmando el recibo de caja de conformidad.",
     witness1Name: "C. Mario Vaca López",
-    witness1Curp: "VALM830303HDFXX07",
+    witness1Id: "CURP: VALM830303HDFXX07",
     witness2Name: "C. Karla Montero Gil",
-    witness2Curp: "MOGK910909MDFXX08",
+    witness2Id: "CURP: MOGK910909MDFXX08",
     clauses: [
       {
         id: "cpc-1",

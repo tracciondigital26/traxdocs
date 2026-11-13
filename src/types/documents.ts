@@ -8,6 +8,13 @@ export interface Clause {
   isCustom?: boolean;
 }
 
+export interface Declaration {
+  id: string;
+  title: string;
+  content: string;
+  isEnabled: boolean;
+}
+
 export interface QuotationItem {
   id: string;
   quantity: number;
@@ -57,12 +64,15 @@ export interface DeliveryData {
   issuerName: string;
   issuerRfc: string;
   issuerPhone: string;
+  issuerAddress: string;
   clientName: string;
   clientRfc: string;
   clientAddress: string;
+  clientContact: string;
   receiverName: string;
   receiverPhone: string;
   carrierName: string;
+  driverName: string;
   carrierPlates: string;
   items: DeliveryItem[];
   deliveryNotes: string;
@@ -87,6 +97,8 @@ export interface ContractData {
   partyBRfc: string;
   partyBAddress: string;
   partyBRepresentative: string;
+  // Declaraciones legales previas
+  declarations: Declaration[];
   // Términos económicos o de vigencia
   amount: number;
   currency: string;
@@ -96,9 +108,9 @@ export interface ContractData {
   clauses: Clause[];
   // Testigos
   witness1Name: string;
-  witness1Address: string;
+  witness1Id: string;
   witness2Name: string;
-  witness2Address: string;
+  witness2Id: string;
 }
 
 export type PowerSubtype = 'general' | 'vehicular' | 'tramites' | 'cobro';
@@ -106,19 +118,23 @@ export type PowerSubtype = 'general' | 'vehicular' | 'tramites' | 'cobro';
 export interface PowerOfAttorneyData {
   subtype: PowerSubtype;
   cityAndDate: string;
+  validityUntil: string;
+  authorityTarget: string;
+  legalBasis: string;
   grantorName: string;
   grantorCurpOrRfc: string;
+  grantorId: string;
   grantorAddress: string;
   grantorPhone: string;
   attorneyName: string;
   attorneyCurpOrRfc: string;
+  attorneyId: string;
   attorneyAddress: string;
   attorneyPhone: string;
-  validityUntil: string;
   powersDescription: string;
   clauses: Clause[];
   witness1Name: string;
-  witness1Curp: string;
+  witness1Id: string;
   witness2Name: string;
-  witness2Curp: string;
+  witness2Id: string;
 }
