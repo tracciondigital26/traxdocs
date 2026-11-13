@@ -20,13 +20,69 @@
     }
   </script>
   <style>
+    /* Screen styling */
+    .sheet-page {
+      min-height: 1080px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Print Styles: Force full page height and push signatures to the bottom */
     @media print {
-      @page { margin: 12mm 15mm; size: auto; }
-      body { background: #fff !important; color: #000 !important; font-size: 11pt !important; }
-      header, aside, .no-print, .fixed, button, input, select, textarea, #editor-panel { display: none !important; }
-      #preview-panel { width: 100% !important; max-width: 100% !important; padding: 0 !important; }
-      #printable-sheet { box-shadow: none !important; border: none !important; padding: 0 !important; }
-      table, tr, td, th { page-break-inside: avoid; }
+      @page {
+        margin: 15mm 16mm 16mm 16mm;
+        size: letter portrait;
+      }
+      html, body {
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+        font-size: 11pt !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      header, aside, .no-print, .fixed, button, input, select, textarea, #editor-panel {
+        display: none !important;
+      }
+      #preview-panel {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        height: 100% !important;
+        display: block !important;
+      }
+      #printable-sheet {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: calc(100vh - 12mm) !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+      }
+      .sheet-page {
+        min-height: calc(100vh - 12mm) !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+      }
+      .doc-footer-bottom {
+        margin-top: auto !important;
+        padding-top: 25mm !important;
+        page-break-inside: avoid !important;
+      }
+      table, tr, td, th {
+        page-break-inside: avoid !important;
+      }
     }
   </style>
 </head>
@@ -62,7 +118,7 @@
             <span class="text-lg font-black text-emerald-400">Docs</span>
             <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded ml-1 font-semibold">Gratis</span>
           </div>
-          <p class="text-[10px] text-slate-400">Documentos legales y comerciales 100% editables</p>
+          <p class="text-[10px] text-slate-400">Documentos legales y comerciales proporcionados</p>
         </div>
       </div>
 
@@ -240,7 +296,7 @@
         <!-- Cláusulas de Entrega -->
         <div class="space-y-3 bg-slate-900/70 p-3.5 rounded-lg border border-slate-800">
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-semibold text-white">Condiciones de Entrega y Recepción</h3>
+            <h3 class="text-xs font-semibold text-white">Condiciones de Entrega y Reclamación</h3>
             <button onclick="addClause('r')" class="text-xs text-emerald-400 hover:text-emerald-300 font-semibold">+ Agregar Cláusula</button>
           </div>
           <div id="r-clauses-container" class="space-y-2"></div>
@@ -432,7 +488,7 @@
       <div class="flex items-center justify-between bg-slate-900 border border-slate-800 px-4 py-2.5 rounded-t-xl no-print">
         <div class="flex items-center gap-2">
           <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
-          <span class="text-xs font-semibold text-slate-300">Hoja Imprimible en Vivo (Vectorial / PDF)</span>
+          <span class="text-xs font-semibold text-slate-300">Hoja Completa Proporcionada (Letter / A4)</span>
         </div>
         <div class="flex items-center gap-2">
           <button onclick="copyDocText()" class="inline-flex items-center gap-1 rounded bg-slate-800 px-2.5 py-1 text-xs text-slate-200 hover:bg-slate-700 border border-slate-700">
@@ -445,8 +501,8 @@
       </div>
 
       <div class="bg-slate-950/60 p-4 flex justify-center flex-1 overflow-y-auto">
-        <div id="printable-sheet" class="w-full max-w-[820px] bg-white text-slate-900 shadow-2xl rounded p-10 sm:p-12 text-[12.5px] leading-relaxed border border-slate-200">
-          <div id="sheet-body"></div>
+        <div id="printable-sheet" class="w-full max-w-[820px] bg-white text-slate-900 shadow-2xl rounded p-10 sm:p-12 text-[12.5px] leading-relaxed border border-slate-200 sheet-page">
+          <div id="sheet-body" class="h-full flex flex-col justify-between"></div>
         </div>
       </div>
     </div>
@@ -532,7 +588,7 @@
       c.innerHTML = qItems.map((item, i) => `
         <div class="p-2.5 rounded bg-slate-950 border border-slate-800 space-y-2">
           <div class="flex gap-2">
-            <input type="number" min="1" value="${item.qty}" oninput="editQItem(${item.id}, 'qty', this.value)" class="w-16 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white text-center">
+            <input type="number" min="1" value="${item.qty}" oninput="editQItem(${item.id}, 'qty', this.value)" class="w-16 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white text-center font-bold">
             <input type="text" value="${item.unit}" oninput="editQItem(${item.id}, 'unit', this.value)" class="w-20 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white">
             <input type="number" value="${item.price}" oninput="editQItem(${item.id}, 'price', this.value)" class="flex-1 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white text-right font-medium">
             <button onclick="deleteQItem(${item.id})" class="p-1 text-slate-500 hover:text-rose-400">✕</button>
@@ -570,7 +626,7 @@
       c.innerHTML = rItems.map((item) => `
         <div class="p-2.5 rounded bg-slate-950 border border-slate-800 space-y-2">
           <div class="flex gap-2">
-            <input type="number" min="1" value="${item.qty}" oninput="editRItem(${item.id}, 'qty', this.value)" class="w-16 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white text-center">
+            <input type="number" min="1" value="${item.qty}" oninput="editRItem(${item.id}, 'qty', this.value)" class="w-16 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white text-center font-bold">
             <input type="text" value="${item.unit}" oninput="editRItem(${item.id}, 'unit', this.value)" class="w-20 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white">
             <input type="text" value="${item.code}" oninput="editRItem(${item.id}, 'code', this.value)" class="w-28 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-white">
             <button onclick="deleteRItem(${item.id})" class="p-1 text-slate-500 hover:text-rose-400 ml-auto">✕</button>
@@ -768,7 +824,7 @@
       renderDoc();
     }
 
-    // MAIN RENDER DOCUMENT FUNCTION (Live Sheet)
+    // MAIN RENDER DOCUMENT FUNCTION (Live Sheet with Page Proportions and Bottom Signatures)
     function renderDoc() {
       const sheet = document.getElementById('sheet-body');
 
@@ -801,23 +857,24 @@
 
         const itemsRows = qItems.map(it => `
           <tr class="border-b border-slate-200">
-            <td class="py-2.5 text-center font-bold">${it.qty}</td>
-            <td class="py-2.5 text-slate-600">${it.unit}</td>
-            <td class="py-2.5 font-normal text-slate-900">${it.desc}</td>
-            <td class="py-2.5 text-right font-mono">$${it.price.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
-            <td class="py-2.5 text-right font-mono font-bold">$${(it.qty * it.price).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+            <td class="py-3 text-center font-bold">${it.qty}</td>
+            <td class="py-3 text-slate-600">${it.unit}</td>
+            <td class="py-3 font-normal text-slate-900 leading-snug">${it.desc}</td>
+            <td class="py-3 text-right font-mono text-slate-700">$${it.price.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+            <td class="py-3 text-right font-mono font-bold text-slate-900">$${(it.qty * it.price).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
           </tr>
         `).join('');
 
         const activeClauses = qClauses.filter(c => c.enabled).map(c => `
-          <p class="mb-1 text-slate-700"><strong>${c.title}:</strong> ${c.text}</p>
+          <p class="mb-1.5 text-slate-700 leading-snug"><strong>${c.title}:</strong> ${c.text}</p>
         `).join('');
 
         sheet.innerHTML = `
-          <div class="space-y-6">
+          <!-- Upper / Main Content -->
+          <div class="space-y-6 flex-1">
             <div class="flex justify-between items-start border-b-2 border-slate-900 pb-5">
               <div>
-                <h1 class="text-2xl font-bold tracking-tight uppercase text-slate-950">${issuer}</h1>
+                <h1 class="text-2xl font-black tracking-tight uppercase text-slate-950">${issuer}</h1>
                 <p class="text-xs text-slate-600 mt-1">RFC: ${issuerRfc} | Tel: ${issuerPhone}</p>
                 <p class="text-xs text-slate-600">${issuerAddress}</p>
                 <p class="text-xs text-slate-600">Email: ${issuerEmail}</p>
@@ -834,7 +891,7 @@
               <h3 class="font-bold text-slate-800 uppercase tracking-wider mb-2">Datos del Cliente</h3>
               <div class="grid grid-cols-2 gap-3">
                 <div>
-                  <p class="font-bold text-slate-900">${client}</p>
+                  <p class="font-bold text-slate-900 text-sm">${client}</p>
                   <p class="text-slate-600">RFC: ${clientRfc}</p>
                   <p class="text-slate-600">${clientAddress}</p>
                 </div>
@@ -848,32 +905,43 @@
             <table class="w-full text-left text-xs border-collapse">
               <thead>
                 <tr class="border-b-2 border-slate-900 font-bold uppercase text-slate-900">
-                  <th class="py-2 text-center w-12">Cant.</th>
-                  <th class="py-2 w-20">Unidad</th>
-                  <th class="py-2">Descripción del Servicio / Producto</th>
-                  <th class="py-2 text-right w-28">P. Unitario</th>
-                  <th class="py-2 text-right w-28">Importe</th>
+                  <th class="py-2.5 text-center w-12">Cant.</th>
+                  <th class="py-2.5 w-20">Unidad</th>
+                  <th class="py-2.5">Descripción del Servicio / Producto</th>
+                  <th class="py-2.5 text-right w-28">P. Unitario</th>
+                  <th class="py-2.5 text-right w-28">Importe</th>
                 </tr>
               </thead>
               <tbody>${itemsRows}</tbody>
             </table>
 
             <div class="flex justify-end pt-2">
-              <div class="w-72 space-y-1.5 text-xs">
+              <div class="w-80 space-y-1.5 text-xs">
                 <div class="flex justify-between py-1 border-b border-slate-200 text-slate-600"><span>Subtotal:</span><span class="font-bold font-mono">$${subtotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span></div>
                 ${discountRate > 0 ? `<div class="flex justify-between py-1 border-b border-slate-200 text-slate-600"><span>Descuento (${discountRate}%):</span><span class="font-bold text-rose-600 font-mono">-$${discountAmt.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span></div>` : ''}
                 <div class="flex justify-between py-1 border-b border-slate-200 text-slate-600"><span>IVA (${ivaRate}%):</span><span class="font-bold font-mono">$${ivaAmt.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span></div>
-                <div class="flex justify-between py-2 border-t-2 border-slate-900 text-sm font-bold text-slate-950"><span>TOTAL (${currency}):</span><span class="font-mono">$${total.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span></div>
+                <div class="flex justify-between py-2 border-t-2 border-slate-900 text-sm font-bold text-slate-950"><span>TOTAL (${currency}):</span><span class="font-mono text-base">$${total.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span></div>
               </div>
             </div>
 
-            ${clabe ? `<div class="bg-slate-50 border border-slate-200 rounded p-3 text-xs"><strong class="uppercase block mb-1">Información Bancaria:</strong> Banco: ${bank} | CLABE: <span class="font-mono font-bold">${clabe}</span> | Beneficiario: ${beneficiary}</div>` : ''}
+            ${clabe ? `<div class="bg-slate-50 border border-slate-200 rounded p-3 text-xs"><strong class="uppercase block mb-1">Información Bancaria para Pago:</strong> Banco: <strong>${bank}</strong> | CLABE: <span class="font-mono font-bold">${clabe}</span> | Beneficiario: <strong>${beneficiary}</strong></div>` : ''}
 
-            ${activeClauses ? `<div class="pt-2 border-t border-slate-200 text-[11px]"><h4 class="font-bold text-slate-900 uppercase mb-2">Términos y Condiciones Comerciales:</h4>${activeClauses}</div>` : ''}
+            ${activeClauses ? `<div class="pt-3 border-t border-slate-200 text-[11px]"><h4 class="font-bold text-slate-900 uppercase mb-2">Términos y Condiciones Comerciales:</h4>${activeClauses}</div>` : ''}
+          </div>
 
-            <div class="pt-10 grid grid-cols-2 gap-8 text-center text-xs">
-              <div><div class="border-b border-slate-900 mx-8 pb-1"></div><p class="font-bold text-slate-900 mt-2">${issuer}</p><p class="text-slate-500">Emisor Autorizado</p></div>
-              <div><div class="border-b border-slate-900 mx-8 pb-1"></div><p class="font-bold text-slate-900 mt-2">${client}</p><p class="text-slate-500">Aceptación (Firma y Sello)</p></div>
+          <!-- Bottom / Signatures (Anchored at the bottom) -->
+          <div class="doc-footer-bottom mt-auto pt-14">
+            <div class="grid grid-cols-2 gap-12 text-center text-xs">
+              <div>
+                <div class="border-b border-slate-900 mx-4 pb-1"></div>
+                <p class="font-bold text-slate-900 mt-2 text-sm">${issuer}</p>
+                <p class="text-slate-500">Emisor Autorizado</p>
+              </div>
+              <div>
+                <div class="border-b border-slate-900 mx-4 pb-1"></div>
+                <p class="font-bold text-slate-900 mt-2 text-sm">${client}</p>
+                <p class="text-slate-500">Aceptación del Cliente (Firma y Sello)</p>
+              </div>
             </div>
           </div>
         `;
@@ -897,11 +965,11 @@
 
         const itemsRows = rItems.map(it => `
           <tr class="border-b border-slate-200">
-            <td class="py-2.5 text-center font-bold">${it.qty}</td>
-            <td class="py-2.5 text-slate-600">${it.unit}</td>
-            <td class="py-2.5 font-mono text-slate-700">${it.code}</td>
-            <td class="py-2.5 font-normal text-slate-900">${it.desc}</td>
-            <td class="py-2.5 text-slate-600 text-[11px]">${it.condition}</td>
+            <td class="py-3 text-center font-bold">${it.qty}</td>
+            <td class="py-3 text-slate-600">${it.unit}</td>
+            <td class="py-3 font-mono text-slate-700">${it.code}</td>
+            <td class="py-3 font-normal text-slate-900">${it.desc}</td>
+            <td class="py-3 text-slate-600 text-[11px]">${it.condition}</td>
           </tr>
         `).join('');
 
@@ -910,10 +978,11 @@
         `).join('');
 
         sheet.innerHTML = `
-          <div class="space-y-6">
+          <!-- Upper / Main Content -->
+          <div class="space-y-6 flex-1">
             <div class="flex justify-between items-start border-b-2 border-slate-900 pb-5">
               <div>
-                <h1 class="text-2xl font-bold tracking-tight uppercase text-slate-950">${issuer}</h1>
+                <h1 class="text-2xl font-black tracking-tight uppercase text-slate-950">${issuer}</h1>
                 <p class="text-xs text-slate-600 mt-1">RFC: ${issuerRfc} | Tel: ${issuerPhone}</p>
                 <p class="text-xs text-slate-600">Comprobante de Entrega y Recepción de Bienes</p>
               </div>
@@ -928,7 +997,7 @@
             <div class="grid grid-cols-2 gap-4 bg-slate-50 border border-slate-200 rounded p-4 text-xs">
               <div>
                 <h4 class="font-bold text-slate-800 uppercase tracking-wider mb-1">Entregar a:</h4>
-                <p class="font-bold text-slate-900">${client}</p>
+                <p class="font-bold text-slate-900 text-sm">${client}</p>
                 <p class="text-slate-600">${clientAddress}</p>
               </div>
               <div>
@@ -942,11 +1011,11 @@
             <table class="w-full text-left text-xs border-collapse">
               <thead>
                 <tr class="border-b-2 border-slate-900 font-bold uppercase text-slate-900">
-                  <th class="py-2 text-center w-12">Cant.</th>
-                  <th class="py-2 w-20">Unidad</th>
-                  <th class="py-2 w-24">Código/SKU</th>
-                  <th class="py-2">Descripción de Mercancía / Bienes</th>
-                  <th class="py-2 w-36">Estado / Empaque</th>
+                  <th class="py-2.5 text-center w-12">Cant.</th>
+                  <th class="py-2.5 w-20">Unidad</th>
+                  <th class="py-2.5 w-24">Código/SKU</th>
+                  <th class="py-2.5">Descripción de Mercancía / Bienes</th>
+                  <th class="py-2.5 w-36">Estado / Empaque</th>
                 </tr>
               </thead>
               <tbody>${itemsRows}</tbody>
@@ -954,11 +1023,22 @@
 
             ${obs ? `<div class="bg-slate-50 border border-slate-200 rounded p-3 text-xs"><strong>Observaciones de Entrega:</strong> ${obs}</div>` : ''}
 
-            ${activeClauses ? `<div class="pt-2 border-t border-slate-200 text-[11px]"><h4 class="font-bold text-slate-900 uppercase mb-2">Condiciones de Entrega y Reclamación:</h4>${activeClauses}</div>` : ''}
+            ${activeClauses ? `<div class="pt-3 border-t border-slate-200 text-[11px]"><h4 class="font-bold text-slate-900 uppercase mb-2">Condiciones de Entrega y Reclamación:</h4>${activeClauses}</div>` : ''}
+          </div>
 
-            <div class="pt-10 grid grid-cols-2 gap-8 text-center text-xs">
-              <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold text-slate-900 mt-2">${driver || carrier}</p><p class="text-slate-500">Firma de Entrega (Transportista)</p></div>
-              <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold text-slate-900 mt-2">${receiver}</p><p class="text-slate-500">Recibido de Conformidad (Nombre, Firma e INE)</p></div>
+          <!-- Bottom / Signatures (Anchored at the bottom) -->
+          <div class="doc-footer-bottom mt-auto pt-14">
+            <div class="grid grid-cols-2 gap-12 text-center text-xs">
+              <div>
+                <div class="border-b border-slate-900 mx-4 pb-1"></div>
+                <p class="font-bold text-slate-900 mt-2 text-sm">${driver || carrier}</p>
+                <p class="text-slate-500">Firma de Entrega (Transportista / Operador)</p>
+              </div>
+              <div>
+                <div class="border-b border-slate-900 mx-4 pb-1"></div>
+                <p class="font-bold text-slate-900 mt-2 text-sm">${receiver}</p>
+                <p class="text-slate-500">Recibido de Conformidad (Nombre, Firma e INE)</p>
+              </div>
             </div>
           </div>
         `;
@@ -981,7 +1061,6 @@
         const amount = parseFloat(document.getElementById('c-amount').value) || 0;
         const currency = document.getElementById('c-currency').value;
         const payment = document.getElementById('c-payment').value;
-        const duration = document.getElementById('c-duration').value;
         const w1Name = document.getElementById('c-w1-name').value;
         const w1Id = document.getElementById('c-w1-id').value;
         const w2Name = document.getElementById('c-w2-name').value;
@@ -992,13 +1071,14 @@
         `).join('');
 
         const clausesHtml = cClauses.filter(c => c.enabled).map(c => `
-          <div class="mb-3 leading-relaxed"><p><strong>${c.title}.-</strong> ${c.text}</p></div>
+          <div class="mb-3.5 leading-relaxed"><p><strong>${c.title}.-</strong> ${c.text}</p></div>
         `).join('');
 
         sheet.innerHTML = `
-          <div class="space-y-5 text-justify">
+          <!-- Upper / Main Content -->
+          <div class="space-y-5 text-justify flex-1">
             <div class="text-center border-b-2 border-slate-900 pb-4">
-              <h1 class="text-lg font-bold tracking-tight uppercase text-slate-950">${title}</h1>
+              <h1 class="text-lg font-black tracking-tight uppercase text-slate-950">${title}</h1>
               <p class="text-xs font-semibold text-slate-600 mt-1 uppercase tracking-wider">CELEBRADO ENTRE ${nameA} Y ${nameB}</p>
             </div>
 
@@ -1024,22 +1104,43 @@
             </div>
 
             <div class="text-xs text-slate-700 italic pt-2">
-              Leído que fue el presente contrato por las partes y enteradas de su contenido, alcance y fuerza legal, lo firman de común acuerdo en dos tantos en el lugar y fecha señalados en el proemio.
+              Leído que fue el presente contrato por las partes y enteradas de su contenido, alcance y fuerza legal, lo firman de común acuerdo por duplicado en el lugar y fecha señalados en el proemio.
             </div>
+          </div>
 
-            <div class="pt-8 space-y-8">
-              <div class="grid grid-cols-2 gap-8 text-center text-xs">
-                <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold text-slate-950 mt-2">${nameA}</p><p class="text-slate-600">${roleA}</p><p class="text-[11px] text-slate-500">Por: ${repA}</p></div>
-                <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold text-slate-950 mt-2">${nameB}</p><p class="text-slate-600">${roleB}</p><p class="text-[11px] text-slate-500">Por: ${repB}</p></div>
+          <!-- Bottom / Signatures (Anchored at the bottom) -->
+          <div class="doc-footer-bottom mt-auto pt-14 space-y-8">
+            <div class="grid grid-cols-2 gap-10 text-center text-xs">
+              <div>
+                <div class="border-b border-slate-900 mx-4 pb-1"></div>
+                <p class="font-bold text-slate-950 mt-2 text-sm">${nameA}</p>
+                <p class="text-slate-600">${roleA}</p>
+                <p class="text-[11px] text-slate-500">Por: ${repA}</p>
               </div>
-
-              ${w1Name || w2Name ? `
-                <div class="grid grid-cols-2 gap-8 text-center text-xs pt-4">
-                  <div><div class="border-b border-slate-900 mx-8 pb-1"></div><p class="font-bold mt-1 text-slate-900">TESTIGO 1</p><p class="text-slate-700">${w1Name}</p><p class="text-[11px] text-slate-500">${w1Id}</p></div>
-                  <div><div class="border-b border-slate-900 mx-8 pb-1"></div><p class="font-bold mt-1 text-slate-900">TESTIGO 2</p><p class="text-slate-700">${w2Name}</p><p class="text-[11px] text-slate-500">${w2Id}</p></div>
-                </div>
-              ` : ''}
+              <div>
+                <div class="border-b border-slate-900 mx-4 pb-1"></div>
+                <p class="font-bold text-slate-950 mt-2 text-sm">${nameB}</p>
+                <p class="text-slate-600">${roleB}</p>
+                <p class="text-[11px] text-slate-500">Por: ${repB}</p>
+              </div>
             </div>
+
+            ${w1Name || w2Name ? `
+              <div class="grid grid-cols-2 gap-10 text-center text-xs pt-2">
+                <div>
+                  <div class="border-b border-slate-900 mx-6 pb-1"></div>
+                  <p class="font-bold mt-1 text-slate-900">TESTIGO 1</p>
+                  <p class="text-slate-700 font-medium">${w1Name}</p>
+                  <p class="text-[11px] text-slate-500">${w1Id}</p>
+                </div>
+                <div>
+                  <div class="border-b border-slate-900 mx-6 pb-1"></div>
+                  <p class="font-bold mt-1 text-slate-900">TESTIGO 2</p>
+                  <p class="text-slate-700 font-medium">${w2Name}</p>
+                  <p class="text-[11px] text-slate-500">${w2Id}</p>
+                </div>
+              </div>
+            ` : ''}
           </div>
         `;
       }
@@ -1069,10 +1170,11 @@
         `).join('');
 
         sheet.innerHTML = `
-          <div class="space-y-6 text-justify">
-            <div class="flex justify-between items-start border-b-2 border-slate-900 pb-3">
+          <!-- Upper / Main Content -->
+          <div class="space-y-6 text-justify flex-1">
+            <div class="flex justify-between items-start border-b-2 border-slate-900 pb-4">
               <div>
-                <h1 class="text-2xl font-bold tracking-tight uppercase text-slate-950">CARTA PODER</h1>
+                <h1 class="text-2xl font-black tracking-tight uppercase text-slate-950">CARTA PODER</h1>
                 <p class="text-xs text-slate-600 font-medium">Documento Privado de Mandato y Representación Legal</p>
               </div>
               <div class="text-right text-xs">
@@ -1092,21 +1194,42 @@
               </div>
             </div>
 
-            ${clausesHtml ? `<div class="pt-2 border-t border-slate-200">${clausesHtml}</div>` : ''}
+            ${clausesHtml ? `<div class="pt-3 border-t border-slate-200">${clausesHtml}</div>` : ''}
 
             <div class="text-xs text-slate-700 italic pt-2">
-              Se otorga la presente carta poder con la ratificación y comparecencia de los dos testigos cuyos nombres, domicilios y firmas constan al calce del presente documento.
+              Se otorga la presente carta poder con la ratificación y comparecencia de los dos testigos cuyos nombres, identificaciones y firmas constan al calce del presente documento.
+            </div>
+          </div>
+
+          <!-- Bottom / 4 Signatures (Anchored at the bottom) -->
+          <div class="doc-footer-bottom mt-auto pt-14 space-y-8">
+            <div class="grid grid-cols-2 gap-10 text-center text-xs">
+              <div>
+                <div class="border-b border-slate-900 mx-4 pb-1"></div>
+                <p class="font-bold text-slate-950 mt-1 text-sm">OTORGANTE (PODERDANTE)</p>
+                <p class="text-slate-800 font-semibold">${gName}</p>
+                <p class="text-[11px] text-slate-500">${gId} | ${gRfc}</p>
+              </div>
+              <div>
+                <div class="border-b border-slate-900 mx-4 pb-1"></div>
+                <p class="font-bold text-slate-950 mt-1 text-sm">ACEPTANTE (APODERADO)</p>
+                <p class="text-slate-800 font-semibold">${aName}</p>
+                <p class="text-[11px] text-slate-500">${aId} | ${aRfc}</p>
+              </div>
             </div>
 
-            <div class="pt-8 space-y-8">
-              <div class="grid grid-cols-2 gap-8 text-center text-xs">
-                <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold text-slate-950 mt-1">OTORGANTE (PODERDANTE)</p><p class="text-slate-800 font-semibold">${gName}</p><p class="text-[11px] text-slate-500">${gId} | ${gRfc}</p></div>
-                <div><div class="border-b border-slate-900 mx-6 pb-1"></div><p class="font-bold text-slate-950 mt-1">ACEPTANTE (APODERADO)</p><p class="text-slate-800 font-semibold">${aName}</p><p class="text-[11px] text-slate-500">${aId} | ${aRfc}</p></div>
+            <div class="grid grid-cols-2 gap-10 text-center text-xs pt-2">
+              <div>
+                <div class="border-b border-slate-900 mx-6 pb-1"></div>
+                <p class="font-bold text-slate-950 mt-1">TESTIGO 1</p>
+                <p class="text-slate-800 font-medium">${w1Name}</p>
+                <p class="text-[11px] text-slate-500">${w1Id}</p>
               </div>
-
-              <div class="grid grid-cols-2 gap-8 text-center text-xs pt-4">
-                <div><div class="border-b border-slate-900 mx-8 pb-1"></div><p class="font-bold text-slate-950 mt-1">TESTIGO 1</p><p class="text-slate-800 font-medium">${w1Name}</p><p class="text-[11px] text-slate-500">${w1Id}</p></div>
-                <div><div class="border-b border-slate-900 mx-8 pb-1"></div><p class="font-bold text-slate-950 mt-1">TESTIGO 2</p><p class="text-slate-800 font-medium">${w2Name}</p><p class="text-[11px] text-slate-500">${w2Id}</p></div>
+              <div>
+                <div class="border-b border-slate-900 mx-6 pb-1"></div>
+                <p class="font-bold text-slate-950 mt-1">TESTIGO 2</p>
+                <p class="text-slate-800 font-medium">${w2Name}</p>
+                <p class="text-[11px] text-slate-500">${w2Id}</p>
               </div>
             </div>
           </div>

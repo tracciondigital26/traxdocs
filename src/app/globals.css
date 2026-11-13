@@ -30,17 +30,22 @@ body {
   background: #475569;
 }
 
-/* Print Styles for exact vector document export */
+/* Print Styles: Enforce full-page height and push signatures to the bottom */
 @media print {
   @page {
-    margin: 12mm 15mm 15mm 15mm;
-    size: auto;
+    margin: 15mm 16mm 16mm 16mm;
+    size: letter portrait;
   }
 
-  body {
+  html, body {
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
     background: #ffffff !important;
-    color: #000000 !important;
+    color: #0f172a !important;
     font-size: 11pt !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   header,
@@ -60,16 +65,26 @@ body {
     margin: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
+    min-height: calc(100vh - 12mm) !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
     color: #0f172a !important;
     background: #ffffff !important;
   }
 
-  /* Prevent awkward page breaks */
+  .doc-footer-bottom {
+    margin-top: auto !important;
+    padding-top: 25mm !important;
+    page-break-inside: avoid !important;
+  }
+
   table, tr, td, th {
-    page-break-inside: avoid;
+    page-break-inside: avoid !important;
   }
 
   .grid {
-    page-break-inside: avoid;
+    page-break-inside: avoid !important;
   }
 }
